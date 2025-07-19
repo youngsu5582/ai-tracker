@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/prompts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // WARNING: For development only. Restrict to specific origins in production.
 public class PromptController {
 
     private final PromptRepository promptRepository;

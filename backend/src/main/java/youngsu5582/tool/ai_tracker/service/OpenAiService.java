@@ -24,7 +24,7 @@ public class OpenAiService {
 
     public OpenAiService(WebClient.Builder webClientBuilder,
         @Value("${openai.api.key}") String apiKey) {
-        log.info("Initializing OpenAiService with API Key: {}", apiKey.substring(0, 16));
+        log.debug("Initializing OpenAiService with API Key: {}", apiKey.substring(0, 16));
         this.chatWebClient = webClientBuilder
             .baseUrl("https://api.openai.com/v1/chat/completions")
             .defaultHeader("Authorization", "Bearer " + apiKey)

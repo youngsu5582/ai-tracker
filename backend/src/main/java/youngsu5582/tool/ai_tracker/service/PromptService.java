@@ -1,24 +1,18 @@
 package youngsu5582.tool.ai_tracker.service;
 
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import youngsu5582.tool.ai_tracker.api.dto.CaptureRequest;
-import youngsu5582.tool.ai_tracker.domain.Language;
 import youngsu5582.tool.ai_tracker.domain.Prompt;
 import youngsu5582.tool.ai_tracker.event.PromptEvaluationEvent;
 import youngsu5582.tool.ai_tracker.repository.PromptRepository;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import org.springframework.context.ApplicationEventPublisher;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-import youngsu5582.tool.ai_tracker.service.OpenAiService;
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromptService {
@@ -32,11 +26,10 @@ public class PromptService {
             .flatMap(category -> {
                 LocalDateTime timestamp = LocalDateTime.parse(request.timestamp(),
                     DateTimeFormatter.ISO_DATE_TIME);
-                // MongoDB will generate the ID, so we pass null for it.
-                // Initialize score, reasons, isMeaningless to null/default values
                 Prompt newPrompt = new Prompt(null, request.prompt(), request.model(),
                     request.source(), timestamp.toInstant(ZoneOffset.UTC), category, null, null,
                     null, request.language());
+
                 return Mono.fromCallable(() -> promptRepository.save(newPrompt))
                     .subscribeOn(Schedulers.boundedElastic())
                     .doOnSuccess(savedPrompt -> {

@@ -13,7 +13,7 @@ import youngsu5582.tool.ai_tracker.service.UsageService;
 @RestController
 @RequestMapping("/api/usage")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // WARNING: For development only. Restrict to specific origins in production.
 public class UsageController {
 
     private final UsageService usageService;

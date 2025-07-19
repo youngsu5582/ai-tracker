@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/data")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allow all origins for now
+@CrossOrigin(origins = "*") // WARNING: For development only. Restrict to specific origins in production.
 public class DataController {
 
     private final PromptService promptService;
