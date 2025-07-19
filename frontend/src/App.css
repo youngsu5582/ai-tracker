@@ -1,0 +1,194 @@
+/* App.css */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #2a2a2a;
+}
+
+.app-title-container {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 40px; /* Adjust as needed */
+    margin-right: 10px;
+}
+
+.app-header h1 {
+    margin: 0;
+    color: #f0f0f0; /* 헤더 제목 색상을 밝게 */
+}
+
+.app-header nav a {
+    margin: 0 15px;
+    color: #f0f0f0; /* 네비게이션 링크 색상을 밝게 */
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+/* Add a nice underline effect on hover */
+.app-header nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #007bff; /* A nice blue for accent */
+    transition: all 0.3s ease-in-out;
+}
+
+.app-header nav a:hover {
+    color: #007bff;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.app-header nav a:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+
+main {
+    padding: 40px; /* Increased padding for more breathing room */
+}
+
+.period-selector {
+    margin-bottom: 30px; /* Increased margin */
+    display: flex;
+    gap: 10px;
+}
+
+.period-selector button {
+    padding: 10px 20px;
+    border: 1px solid #cce0ff; /* Light blue border */
+    background-color: #e6f0fa; /* Very light blue background */
+    color: #007bff; /* Blue text */
+    cursor: pointer;
+    border-radius: 20px; /* Rounded buttons */
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1); /* Blueish shadow */
+    transition: all 0.3s ease;
+}
+
+.period-selector button:hover {
+    background-color: #444;
+}
+
+.usage-page {
+    padding: 20px;
+}
+
+.usage-page h1 {
+    color: #f0f0f0;
+}
+
+.usage-page .date-selector label {
+    margin-right: 10px;
+}
+
+.usage-page .date-selector input[type="date"] {
+    padding: 8px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+.usage-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.usage-page th, .usage-page td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: left;
+}
+
+.usage-page th {
+    background-color: #3a3a3a;
+}
+
+.usage-page .error-message {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.usage-page .no-data-message {
+    color: #aaa;
+    font-style: italic;
+}
+
+
+.period-selector button.active { /* Style for the active button */
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2); /* Active state shadow */
+}
+
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px; /* Increased gap */
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 12px; /* More rounded corners */
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.08); /* Softer, more pronounced blueish shadow */
+    border: 1px solid #d0e0f0; /* Lighter, blueish border */
+    transition: all 0.3s ease; /* Ensure smooth transition for card */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* More noticeable lift on hover */
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15); /* Stronger blueish shadow on hover */
+}
+
+.card h2 { /* Style for card titles */
+    margin-top: 0;
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e6f0fa; /* Very light blueish border */
+    padding-bottom: 15px;
+}
+
+
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.card li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 5px; /* Increased padding */
+    border-bottom: 1px solid #eef5fb; /* Very light blueish border */
+    font-size: 1.05em;
+    transition: all 0.2s ease; /* Ensure smooth transition for list items */
+}
+
+.card li:last-child {
+    border-bottom: none;
+}
+
+/* Add a hover effect for list items */
+.card li:hover {
+    background-color: #f5faff; /* Very light blue on hover */
+    border-radius: 5px;
+    transform: translateX(5px); /* Slight slide effect on hover */
+}

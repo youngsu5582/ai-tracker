@@ -1,1 +1,5 @@
 rootProject.name = 'ai_tracker'
+
+include 'backend'
+include 'frontend'
+include 'chrome-extension'

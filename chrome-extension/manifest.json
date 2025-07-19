@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "AI Activity Tracker",
+  "version": "0.3.0",
+  "description": "Tracks prompts and responses from AI services.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "https://gemini.google.com/*",
+    "http://localhost:11240/*"
+  ],
+  "background": {
+    "service_worker": "src/background-wrapper.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "src/content.js"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,285 @@
+/* History.css */
+
+.history-page {
+    padding: 40px;
+    max-width: 1200px; /* Max width for better readability on large screens */
+    margin: 0 auto; /* Center the content */
+}
+
+.history-page h1 {
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.history-controls {
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    align-items: center;
+    gap: 15px;
+}
+
+.history-controls input[type="date"] {
+    padding: 12px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 8px;
+    font-size: 1em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex-grow: 1; /* Allow date inputs to grow */
+    min-width: 150px; /* Minimum width for date input */
+}
+
+.history-controls button {
+    padding: 10px 20px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.history-controls button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.no-data-message {
+    text-align: center;
+    color: #777;
+    font-size: 1.1em;
+    margin-top: 50px;
+}
+
+.timeline-day-header {
+    font-size: 1.8em; /* Slightly larger */
+    font-weight: 600;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #90b0d0; /* More prominent soft blue border */
+    color: #333;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 25px; /* Increased margin */
+    position: relative;
+    padding-left: 40px; /* More space for the timeline line and dot */
+}
+
+/* The vertical timeline line */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 10px; /* Adjusted position */
+    top: 5px;
+    bottom: -5px;
+    width: 2px;
+    background-color: #6090c0; /* Even darker blue for the line */
+}
+
+/* The timeline dot */
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 20px; /* Slightly larger dot */
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 4px solid #007bff; /* Thicker border */
+    z-index: 1;
+}
+
+.timeline-item-time {
+    position: absolute;
+    left: -120px; /* Adjusted position to the left */
+    top: 3px;
+    width: 100px; /* Wider for time */
+    text-align: right;
+    color: #777;
+    font-size: 1em; /* Slightly larger */
+    font-weight: 500;
+}
+
+.timeline-item-content {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 12px; /* More rounded corners */
+    padding: 25px; /* Increased padding */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+    border: 1px solid #e0e0e0;
+    margin-left: 20px;
+    transition: all 0.3s ease;
+}
+
+.timeline-item-content:hover {
+    transform: translateY(-8px); /* More noticeable lift */
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+}
+
+.prompt-meta-tags {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    font-size: 0.8em;
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease; /* Add transition for tags */
+}
+
+.tag:hover {
+    transform: translateY(-2px); /* Slight lift on tag hover */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow on tag hover */
+}
+
+.source-tag {
+    background-color: #e6f7ff;
+    color: #1890ff;
+    border: 1px solid #91d5ff;
+}
+
+.model-tag {
+    background-color: #f3e6ff; /* Light purple */
+    color: #8a2be2; /* Darker purple */
+    border: 1px solid #c39eff;
+}
+
+.language-tag {
+    background-color: #e6fffb; /* Light cyan */
+    color: #008b8b; /* Dark cyan */
+    border: 1px solid #80ced6;
+}
+
+.category-tag {
+    background-color: #fffbe6;
+    color: #faad14;
+    border: 1px solid #ffe58f;
+}
+
+.prompt-text {
+    margin: 0 0 15px 0;
+    font-size: 1.05em;
+    line-height: 1.7; /* Increased line height for readability */
+    white-space: pre-wrap; /* Preserve whitespace and line breaks */
+    word-break: break-word; /* Break long words */
+}
+
+.read-more-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    padding: 0;
+    margin-top: 5px;
+    transition: color 0.2s ease, transform 0.2s ease; /* Add transition for buttons */
+}
+
+.read-more-btn:hover {
+    color: #0056b3;
+    text-decoration: underline;
+    transform: translateX(3px); /* Slight slide effect on hover */
+}
+
+.prompt-evaluation-score {
+    margin-top: 15px;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.prompt-evaluation-reasons {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.prompt-evaluation-reasons ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.prompt-evaluation-reasons li {
+    margin-bottom: 5px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    color: #555;
+    cursor: pointer;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.meaningless-prompt-text {
+    color: #dc3545; /* Red color for meaningless text */
+    font-style: italic;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .history-page {
+        padding: 20px;
+    }
+
+    .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .history-controls input[type="date"],
+    .history-controls button {
+        width: 100%;
+    }
+
+    .timeline-item {
+        padding-left: 20px; /* Reduce padding for smaller screens */
+    }
+
+    .timeline-item::before {
+        left: 5px;
+    }
+
+    .timeline-item::after {
+        left: -5px;
+    }
+
+    .timeline-item-time {
+        position: static; /* Stack time above content on small screens */
+        text-align: left;
+        width: auto;
+        margin-bottom: 10px;
+    }
+
+    .timeline-item-content {
+        margin-left: 0;
+    }
+}
