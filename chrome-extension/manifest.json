@@ -1,10 +1,12 @@
 {
   "manifest_version": 3,
   "name": "AI Activity Tracker",
-  "version": "0.3.0",
+  "version": "0.0.6",
   "description": "Tracks prompts and responses from AI services.",
   "permissions": [
-    "storage"
+    "storage",
+    "webRequest",
+    "webRequestBlocking"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
@@ -23,8 +25,16 @@
         "https://gemini.google.com/*"
       ],
       "js": [
-        "src/content.js"
-      ]
+        "src/content.js",
+        "src/inject.js"
+      ],
+      "run_at": "document_start" 
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/main_world_ai_tracker.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
