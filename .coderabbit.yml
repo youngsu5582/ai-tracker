@@ -1,0 +1,53 @@
+# .coderabbit.yml
+# Code Rabbit configuration file
+
+# Set the review language to English (US)
+language: "en-US" # Changed from 'en' to 'en-US' for precision based on docs
+
+# Define custom review policies
+policies:
+  - name: Commit Unit Size
+    description: Evaluate if the commit unit is appropriate (single responsibility, atomic changes).
+    prompt: |
+      Analyze the changes in this commit. Assess if the commit adheres to the single responsibility principle and represents an atomic, well-defined unit of work. Provide feedback if the commit is too large, too small, or combines unrelated changes.
+
+  - name: Object-Oriented Principles
+    description: Evaluate adherence to Object-Oriented Programming (OOP) principles.
+    prompt: |
+      Review the code for adherence to OOP principles such as encapsulation, inheritance, polymorphism, and abstraction. Provide specific feedback on how the code could better align with these principles, if applicable.
+
+  - name: Clean Code Practices
+    description: Evaluate adherence to Clean Code principles.
+    prompt: |
+      Assess the code for readability, maintainability, and adherence to Clean Code principles (e.g., meaningful names, small functions, clear comments where necessary, error handling, avoiding duplication). Provide actionable suggestions for improvement.
+
+  - name: English Language Validity (Commit & PR Body)
+    description: Evaluate the English grammar, spelling, and clarity of the commit message and pull request description.
+    prompt: |
+      Review the English language used in the commit message and the pull request description. Check for grammatical errors, spelling mistakes, awkward phrasing, and overall clarity. Provide suggestions for improvement to ensure professional and clear communication.
+
+reviews:
+  # Settings related to reviews.
+  profile: "assertive" # Changed from 'chill' to 'assertive' for more detailed feedback
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+
+  # Tools that provide additional context to code reviews.
+  tools:
+    languagetool:
+      enabled: true # Enable LanguageTool for grammar and style checking
+
+# Exclude files or directories from review
+exclude:
+  - "**/build/**"
+  - "**/node_modules/**"
+  - "**/*.lock"
+  - "**/*.log"
+  - "**/*.iml"
+  - "**/.gradle/**"
+  - "**/.idea/**"
+  - "**/.git/**"
+  - "**/.DS_Store"
+  - "**/*.md" # Exclude markdown files from review, as they are often documentation
