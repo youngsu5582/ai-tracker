@@ -1,23 +1,37 @@
 package youngsu5582.tool.ai_tracker.domain;
 
-import java.time.Instant;
-import java.util.List;
-
+import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+import java.util.List;
+
 @Document(collection = "prompts")
-public record Prompt(
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public final class Prompt {
+
     @Id
-    String id,
-    String prompt,
-    String model,
-    String source,
-    Instant timestamp,
-    String category,
-    Integer score,
-    List<String> evaluationReasons,
-    Boolean isMeaningless,
-    Language language
-) {
+    private String id;
+    private String conversationId;
+    private String prompt;
+    private String response;
+    private String model;
+    private String source;
+    private Instant timestamp;
+    private String category;
+    private Integer score;
+    private List<String> evaluationReasons;
+    private Boolean isMeaningless;
+    private Language language;
+    private String mainKeyword;
+
+    public void some(){
+        Arrays.binarySearch()
+    }
 }

@@ -1,17 +1,15 @@
 package youngsu5582.tool.ai_tracker.api;
 
+import java.time.LocalDate;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import youngsu5582.tool.ai_tracker.domain.Prompt;
 import youngsu5582.tool.ai_tracker.repository.PromptRepository;
-
-import java.time.LocalDate;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.List;
+import youngsu5582.tool.ai_tracker.service.PromptService;
 
 @RestController
 @RequestMapping("/api/prompts")
@@ -20,6 +18,7 @@ import java.util.List;
 public class PromptController {
 
     private final PromptRepository promptRepository;
+    private final PromptService promptService;
 
     @GetMapping
     public ResponseEntity<List<Prompt>> getPromptsByCategory(@RequestParam String category) {
@@ -44,5 +43,25 @@ public class PromptController {
         Instant endDateTimeUtc = endLocalDate.atTime(23, 59, 59, 999_999_999).atZone(userTimeZone).toInstant();
 
         return ResponseEntity.ok(promptRepository.findByTimestampBetween(startDateTimeUtc, endDateTimeUtc));
+    }
+
+    @GetMapping("/conversation/{conversationId}")
+    public ResponseEntity<List<Prompt>> getPromptsByConversationId(@PathVariable String conversationId) {
+        return ResponseEntity.ok(promptRepository.findByConversationId(conversationId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Prompt>> searchPrompts(@RequestParam String keyword) {
+        return ResponseEntity.ok(promptService.searchPrompts(keyword));
+    }
+
+    @GetMapping("/keywords")
+    public ResponseEntity<List<String>> getAllKeywords() {
+        return ResponseEntity.ok(promptService.getAllMainKeywords());
+    }
+
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> getAllTags() {
+        return ResponseEntity.ok(promptService.getAllTags());
     }
 }

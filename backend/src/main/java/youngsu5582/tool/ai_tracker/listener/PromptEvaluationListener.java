@@ -1,5 +1,7 @@
 package youngsu5582.tool.ai_tracker.listener;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -23,59 +25,53 @@ public class PromptEvaluationListener {
     @EventListener
     @Async  // Spring TaskExecutor 위에서 비동기로 실행
     public void handlePromptEvaluationEvent(PromptEvaluationEvent event) {
-        log.info("Handling PromptEvaluationEvent for promptId: {}", event.getPromptId());
+        log.info("Handling PromptEvaluationEvent for promptId: {}", event.promptId());
 
-        openAiService.categorizePrompt(event.getPromptText(), event.getLanguage())
-            .zipWith(openAiService.evaluatePrompt(event.getPromptText(), event.getLanguage()))
-            .flatMap(tuple -> {
-                log.info("Prompt evaluation result: {}", tuple);
-                String category = tuple.getT1();
-                OpenAiService.PromptEvaluation evaluation = tuple.getT2();
-                boolean isMeaningless = evaluation.score() <= 0;
+        promptRepository.findById(event.promptId()).ifPresent(prompt -> {
+            openAiService.evaluatePrompt(event.promptText(), event.language(), prompt.getConversationId())
+                .flatMap(evaluation -> {
+                    log.info("Prompt evaluation result: {}", evaluation);
+                    boolean isMeaningless = evaluation.score() <= 0;
 
-                // Optional<Prompt> → Mono<Prompt>
-                return Mono.fromCallable(() -> promptRepository.findById(event.getPromptId()).orElse(null))
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .flatMap(existingPrompt -> {
-                        if (existingPrompt == null) {
-                            log.warn("Prompt with ID {} not found for update.", event.getPromptId());
-                            return Mono.empty();
-                        }
-                        // save(...)는 블로킹이므로 boundedElastic 스케줄러에서 실행
-                        return Mono.fromCallable(() -> {
-                                Prompt updated = new Prompt(
-                                    existingPrompt.id(),
-                                    existingPrompt.prompt(),
-                                    existingPrompt.model(),
-                                    existingPrompt.source(),
-                                    existingPrompt.timestamp(),
-                                    category,
-                                    evaluation.score(),
-                                    evaluation.reasons(),
-                                    isMeaningless,
-                                    existingPrompt.language()
-                                );
-                                return promptRepository.save(updated);
-                            })
-                            .subscribeOn(Schedulers.boundedElastic());
-                    })
-                    .doOnSuccess(savedPrompt ->
-                        log.info("Prompt updated with evaluation: {}", savedPrompt)
-                    );
-            })
-            .doOnError(e ->
-                log.error("Error processing prompt evaluation for {}: {}", event.getPromptId(), e.getMessage(), e)
-            )
-            // openAiService 호출 자체는 논블로킹이므로, 굳이 전체 체인에 subscribeOn을 걸 필요는 없지만
-            // 혹시 내부에 블로킹이 더 있다면 이 라인으로도 잡을 수 있습니다.
-            .subscribeOn(Schedulers.boundedElastic())
-            .subscribe(
-                updatedPrompt ->
-                    log.info("Prompt evaluation and update completed for promptId: {}", event.getPromptId()),
-                e ->
-                    log.error("Final error in prompt evaluation chain for {}: {}", event.getPromptId(), e.getMessage(), e),
-                () ->
-                    log.info("Prompt evaluation chain for {} completed successfully.", event.getPromptId())
-            );
+                    return Mono.fromCallable(() -> {
+                            Prompt updated = new Prompt(
+                                prompt.getId(),
+                                prompt.getConversationId(),
+                                prompt.getPrompt(),
+                                prompt.getResponse(),
+                                prompt.getModel(),
+                                prompt.getSource(),
+                                prompt.getTimestamp(),
+                                prompt.getCategory(),
+                                evaluation.score(),
+                                evaluation.reasons(),
+                                isMeaningless,
+                                prompt.getLanguage(),
+                                prompt.getMainKeyword() // Use getMainKeyword
+                            );
+                            return promptRepository.save(updated);
+                        })
+                        .subscribeOn(Schedulers.boundedElastic());
+                })
+                .doOnSuccess(savedPrompt ->
+                    log.info("Prompt updated with evaluation: {}", savedPrompt)
+                )
+                .doOnError(e ->
+                    log.error("Error processing prompt evaluation for {}: {}", event.promptId(),
+                        e.getMessage(), e)
+                )
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe(
+                    updatedPrompt ->
+                        log.info("Prompt evaluation and update completed for promptId: {}",
+                            event.promptId()),
+                    e ->
+                        log.error("Final error in prompt evaluation chain for {}: {}", event.promptId(),
+                            e.getMessage(), e),
+                    () ->
+                        log.info("Prompt evaluation chain for {} completed successfully.",
+                            event.promptId())
+                );
+        });
     }
 }

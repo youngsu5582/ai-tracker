@@ -1,5 +1,6 @@
 package youngsu5582.tool.ai_tracker.service;
 
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,10 @@ public class StatisticsService {
         Instant startInstant = switch (period.toLowerCase()) {
             case "weekly" -> LocalDateTime.now().with(WeekFields.ISO.dayOfWeek(), 1).toLocalDate()
                 .atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
-            case "monthly" -> LocalDateTime.now().withDayOfMonth(1).toLocalDate().atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
-            default -> LocalDateTime.now().toLocalDate().atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
+            case "monthly" -> LocalDateTime.now().withDayOfMonth(1).toLocalDate().atStartOfDay()
+                .atZone(ZoneOffset.UTC).toInstant();
+            default ->
+                LocalDateTime.now().toLocalDate().atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
         };
 
         List<Prompt> prompts = promptRepository.findByTimestampBetween(startInstant, now);
@@ -39,8 +42,8 @@ public class StatisticsService {
             "requestsBySite", getRequestsBySite(prompts),
             "requestsByModel", getRequestsByModel(prompts),
             "requestsByCategory", getRequestsByCategory(prompts),
-            "topSites", getTopN(prompts, Prompt::source, 5),
-            "topModels", getTopN(prompts, Prompt::model, 5),
+            "topSites", getTopN(prompts, Prompt::getSource, 5),
+            "topModels", getTopN(prompts, Prompt::getModel, 5),
             "requestsByHour", getRequestsByHour(prompts),
             "categoryTree", getCategoryTree(prompts)
         );
@@ -50,21 +53,29 @@ public class StatisticsService {
 
     private Map<String, Long> getRequestsBySite(List<Prompt> prompts) {
         return prompts.stream()
-            .collect(Collectors.groupingBy(p -> Optional.ofNullable(p.source()).orElse("Unknown Site"), Collectors.counting()));
+            .collect(
+                Collectors.groupingBy(
+                    p -> Optional.ofNullable(p.getSource()).orElse("Unknown Site"),
+                    Collectors.counting()));
     }
 
     private Map<String, Long> getRequestsByModel(List<Prompt> prompts) {
         return prompts.stream()
-            .collect(Collectors.groupingBy(p -> Optional.ofNullable(p.model()).orElse("Unknown Model"), Collectors.counting()));
+            .collect(
+                Collectors.groupingBy(
+                    p -> Optional.ofNullable(p.getModel()).orElse("Unknown Model"),
+                    Collectors.counting()));
     }
 
     private Map<String, Long> getRequestsByCategory(List<Prompt> prompts) {
         return prompts.stream()
-            .collect(Collectors.groupingBy(p -> Optional.ofNullable(p.category()).orElse("Uncategorized"), Collectors.counting()));
+            .collect(Collectors.groupingBy(
+                p -> Optional.ofNullable(p.getCategory()).orElse("Uncategorized"),
+                Collectors.counting()));
     }
 
-    private <T> Map<String, Long> getTopN(List<Prompt> prompts,
-        java.util.function.Function<Prompt, String> classifier, int n) {
+    private Map<String, Long> getTopN(List<Prompt> prompts, Function<Prompt, String> classifier,
+        int n) {
         return prompts.stream()
             .collect(Collectors.groupingBy(classifier, Collectors.counting()))
             .entrySet().stream()
@@ -76,7 +87,8 @@ public class StatisticsService {
 
     private Map<Integer, Long> getRequestsByHour(List<Prompt> prompts) {
         Map<Integer, Long> requestsByHour = prompts.stream()
-            .collect(Collectors.groupingBy(p -> p.timestamp().atZone(ZoneOffset.UTC).getHour(), Collectors.counting()));
+            .collect(Collectors.groupingBy(p -> p.getTimestamp().atZone(ZoneOffset.UTC).getHour(),
+                Collectors.counting()));
 
         // Ensure all hours from 0 to 23 are present
         IntStream.range(0, 24).forEach(hour -> requestsByHour.putIfAbsent(hour, 0L));
