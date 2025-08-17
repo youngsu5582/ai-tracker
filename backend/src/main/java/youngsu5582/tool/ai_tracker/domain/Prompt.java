@@ -29,4 +29,17 @@ public final class Prompt {
     private Boolean isMeaningless;
     private Language language;
     private String mainKeyword;
+
+    public void updateCategory(String category) {
+        this.category = category;
+    }
+
+    public PromptConservation conservation() {
+        return new PromptConservation(prompt, response);
+    }
+
+    public LanguagePrompt languagePrompt() {
+        return new LanguagePrompt(prompt, language);
+    }
+
 }
