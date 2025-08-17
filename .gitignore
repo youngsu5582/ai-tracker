@@ -38,3 +38,8 @@ out/
 
 # AI Tracker specific ignores
 backend/src/main/resources/application-local.yml
+
+prompts/**.*
+prompts/keywords/**.*
+backend/prompts/keywords/**.*
+backend/prompts/main_keywords/**.*
