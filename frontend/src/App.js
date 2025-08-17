@@ -1,10 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { FaHistory, FaTachometerAlt } from 'react-icons/fa'; // Import icons
+import { FaHistory, FaTachometerAlt, FaSearch } from 'react-icons/fa'; // Import icons
 import './App.css';
 import History from './pages/History';
-import Dashboard from './pages/Dashboard';
+import Dashboard from '././pages/Dashboard';
 import PromptList from './pages/PromptList';
+import Search from './pages/Search';
 
 function App() {
     return (
@@ -17,12 +18,14 @@ function App() {
                     </div>
                     <nav>
                         <Link to="/"><FaHistory /> History</Link>
+                        <Link to="/search"><FaSearch /> Search</Link>
                         <Link to="/dashboard"><FaTachometerAlt /> Dashboard</Link>
                     </nav>
                 </header>
                 <main>
                     <Routes>
                         <Route path="/" element={<History />} />
+                        <Route path="/search" element={<Search />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/prompts/:category" element={<PromptList />} />
                     </Routes>
