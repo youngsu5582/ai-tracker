@@ -7,9 +7,11 @@ spring:
   profiles:
     default: "local"
 
-server:
-  port: 11240
-
 openai:
   api:
     key: "" # This will be overridden by application-local.yml or environment variables
+
+file:
+  storage:
+    enabled: true # Set to true to enable file storage
+    directory: ./prompts
