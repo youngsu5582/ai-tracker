@@ -1,6 +1,5 @@
 package youngsu5582.tool.ai_tracker.domain;
 
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,8 +29,4 @@ public final class Prompt {
     private Boolean isMeaningless;
     private Language language;
     private String mainKeyword;
-
-    public void some(){
-        Arrays.binarySearch()
-    }
 }
