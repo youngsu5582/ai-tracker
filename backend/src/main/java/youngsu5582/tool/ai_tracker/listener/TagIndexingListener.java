@@ -6,15 +6,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
-import youngsu5582.tool.ai_tracker.ai.chat.service.OpenAiService;
-import youngsu5582.tool.ai_tracker.domain.Prompt;
+import youngsu5582.tool.ai_tracker.ai.chat.openai.OpenAiService;
 import youngsu5582.tool.ai_tracker.event.PromptEvaluationEvent;
 import youngsu5582.tool.ai_tracker.repository.TagRepository;
 import youngsu5582.tool.ai_tracker.repository.PromptRepository;
 import youngsu5582.tool.ai_tracker.domain.TagIndex;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component

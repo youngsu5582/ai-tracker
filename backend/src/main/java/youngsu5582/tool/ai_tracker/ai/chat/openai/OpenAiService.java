@@ -1,4 +1,4 @@
-package youngsu5582.tool.ai_tracker.ai.chat.service;
+package youngsu5582.tool.ai_tracker.ai.chat.openai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 import youngsu5582.tool.ai_tracker.ai.chat.domain.ChatMessage;
 import youngsu5582.tool.ai_tracker.ai.chat.domain.ChatMessageRole;
 import youngsu5582.tool.ai_tracker.ai.chat.domain.ChatMessages;
@@ -21,7 +22,7 @@ import youngsu5582.tool.ai_tracker.config.PromptConfig;
 import youngsu5582.tool.ai_tracker.domain.Language;
 import youngsu5582.tool.ai_tracker.domain.LanguagePrompt;
 import youngsu5582.tool.ai_tracker.domain.Prompt;
-import youngsu5582.tool.ai_tracker.domain.PromptConservation;
+import youngsu5582.tool.ai_tracker.domain.PromptConversation;
 import youngsu5582.tool.ai_tracker.repository.PromptRepository;
 import youngsu5582.tool.ai_tracker.service.ExtractedKeywordsResult;
 
@@ -29,9 +30,9 @@ import youngsu5582.tool.ai_tracker.service.ExtractedKeywordsResult;
 @Service
 public class OpenAiService {
 
-    private static final String REQUEST_MODEL = "gpt-3.5-turbo";
 
     private final WebClient chatWebClient;
+    private final String model;
 
     private final Map<Language, String> categoryExtraction;
     private final Map<Language, String> evaluationSystemPrompts;
@@ -39,13 +40,16 @@ public class OpenAiService {
     private final PromptRepository promptRepository;
 
     public OpenAiService(WebClient.Builder webClientBuilder,
-        @Value("${openai.api.key}") String apiKey, PromptRepository promptRepository,
+        @Value("${openai.api.key}") String apiKey,
+        @Value("${openai.api.model}") String model,
+        PromptRepository promptRepository,
         PromptConfig promptConfig) {
-        log.info("Initializing OpenAiService with API Key: {}", apiKey.substring(0, 16));
+        log.info("Initializing OpenAiService [model: {}]", model);
         this.chatWebClient = webClientBuilder
             .baseUrl("https://api.openai.com/v1/chat/completions")
             .defaultHeader("Authorization", "Bearer " + apiKey)
             .build();
+        this.model = model;
         this.promptRepository = promptRepository;
 
         this.categoryExtraction = promptConfig.categoryExtraction();
@@ -65,7 +69,7 @@ public class OpenAiService {
                 : "[No response provided]"
         );
 
-        ChatRequest request = new ChatRequest(REQUEST_MODEL,
+        ChatRequest request = new ChatRequest(model,
             List.of(new ChatMessage(ChatMessageRole.SYSTEM, systemPrompt),
                 new ChatMessage(ChatMessageRole.USER, userMessageContent)));
 
@@ -88,7 +92,9 @@ public class OpenAiService {
                     // Parse the content string (which should be JSON) into ExtractedKeywordsResult
                     return mapper.readValue(content, ExtractedKeywordsResult.class);
                 } catch (Exception e) {
-                    log.error("Failed to parse OpenAI keyword extraction response", e);
+                    log.warn(
+                        "Failed to parse OpenAI keyword extraction response, continuing with empty value",
+                        e);
                     return new ExtractedKeywordsResult("", List.of(), List.of(), List.of(),
                         List.of()); // Return empty on error
                 }
@@ -117,19 +123,19 @@ public class OpenAiService {
 
         messages.add(new ChatMessage(ChatMessageRole.USER, prompt));
 
-        ChatRequest request = new ChatRequest(REQUEST_MODEL, messages);
+        ChatRequest request = new ChatRequest(model, messages);
 
         return chatWebClient.post()
             .body(Mono.just(request), ChatRequest.class)
             .retrieve()
             .bodyToMono(String.class) // Read as String first to parse JSON manually
-            .map(json -> {
+            .handle((json, sink) -> {
                 log.info("OpenAI Evaluation Raw Response: {}", json);
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    // 1) 전체 응답을 파싱
+                    // 1) parse all response
                     JsonNode rootAll = mapper.readTree(json);
-                    // 2) choices[0].message.content 에 담긴 JSON 문자열을 꺼내기
+                    // 2) put out json value in choices[0].message.content
                     String content = rootAll
                         .path("choices")
                         .get(0)
@@ -144,33 +150,35 @@ public class OpenAiService {
                     root.path("reasons").forEach(node -> reasons.add(node.asText()));
                     log.info("Parsed Evaluation: score={}, reasons={}", score, reasons);
 
-                    return new PromptEvaluation(score, reasons);
+                    sink.next(new PromptEvaluation(score, reasons));
                 } catch (Exception e) {
-                    throw new RuntimeException("Failed to parse OpenAI evaluation response", e);
+                    sink.error(
+                        new OpenAiErrorException("Failed to parse OpenAI evaluation response", e));
                 }
             });
     }
 
-    public String categorizePrompt(LanguagePrompt languagePrompt,
-        PromptConservation lastConservation) {
+    public Mono<String> categorizePrompt(LanguagePrompt languagePrompt,
+        PromptConversation lastConversation) {
         String systemPrompt = categoryExtraction.getOrDefault(languagePrompt.language(),
             categoryExtraction.get(Language.EN));
 
         ChatMessages messages = ChatMessages.empty();
 
         messages.add(ChatMessageRole.SYSTEM, systemPrompt);
-        messages.add(ChatMessageRole.USER, lastConservation.promptRequest());
-        messages.add(ChatMessageRole.ASSISTANT, lastConservation.promptResponse());
+        messages.add(ChatMessageRole.USER, lastConversation.promptRequest());
+        messages.add(ChatMessageRole.ASSISTANT, lastConversation.promptResponse());
         messages.add(ChatMessageRole.USER, languagePrompt.prompt());
 
-        ChatRequest request = new ChatRequest(REQUEST_MODEL, messages.toList());
+        ChatRequest request = new ChatRequest(model, messages.toList());
 
-        return chatWebClient.post().body(Mono.just(request), ChatRequest.class)
+        return chatWebClient.post()
+            .body(Mono.just(request), ChatRequest.class)
             .retrieve()
             .bodyToMono(ChatResponse.class)
             .map(ChatResponse::getContent)
-            .retry(3)
-            .block(Duration.ofSeconds(10));
+            .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
+                .maxBackoff(Duration.ofSeconds(10)));
     }
 
     public record PromptEvaluation(Integer score, List<String> reasons) {

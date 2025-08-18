@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import youngsu5582.tool.ai_tracker.ai.chat.service.OpenAiService;
 import youngsu5582.tool.ai_tracker.api.dto.CaptureRequest;
 import youngsu5582.tool.ai_tracker.domain.Prompt;
 import youngsu5582.tool.ai_tracker.domain.PromptConverter;
@@ -17,7 +16,6 @@ import youngsu5582.tool.ai_tracker.service.search.PromptSearchService;
 public class PromptService {
 
     private final PromptRepository promptRepository;
-    private final OpenAiService openAiService;
     private final ApplicationEventPublisher eventPublisher;
     private final PromptSearchService promptSearchService;
     private final PromptConverter promptConverter;

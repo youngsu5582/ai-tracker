@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ChatMessageRole {
     SYSTEM("system"),
     USER("user"),
-    ASSISTANT("assitant"),
+    ASSISTANT("assistant"),
     ;
 
     @JsonValue

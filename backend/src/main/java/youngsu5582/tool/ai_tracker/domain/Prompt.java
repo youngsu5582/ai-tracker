@@ -1,8 +1,11 @@
 package youngsu5582.tool.ai_tracker.domain;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public final class Prompt {
 
     @Id
@@ -23,6 +27,7 @@ public final class Prompt {
     private String model;
     private String source;
     private Instant timestamp;
+    @Setter(AccessLevel.NONE)
     private String category;
     private Integer score;
     private List<String> evaluationReasons;
@@ -34,8 +39,8 @@ public final class Prompt {
         this.category = category;
     }
 
-    public PromptConservation conservation() {
-        return new PromptConservation(prompt, response);
+    public PromptConversation conversation() {
+        return new PromptConversation(prompt, response);
     }
 
     public LanguagePrompt languagePrompt() {

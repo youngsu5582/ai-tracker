@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +17,10 @@ import youngsu5582.tool.ai_tracker.domain.Language;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class PromptConfig {
 
+    private final ObjectMapper objectMapper;
     private static final String CATEGORY_EXTRACTION_PATH = "prompts/system/category-extraction.json";
     private static final String EVALUATION_PROMPTS_PATH = "prompts/system/evaluation-prompts.json";
     private static final String KEYWORD_EXTRACTION_PROMPTS_PATH = "prompts/system/keyword-extraction-prompts.json";
@@ -40,21 +43,17 @@ public class PromptConfig {
     private Map<Language, String> loadPrompts(String path, String promptType) {
         ClassPathResource resource = new ClassPathResource(path);
         try (InputStream inputStream = resource.getInputStream()) {
-            Map<Language, String> prompts = objectMapper().readValue(inputStream,
+            Map<Language, String> prompts = objectMapper.readValue(inputStream,
                 new TypeReference<>() {
                 });
             log.info("Success to load {} prompts. path: {}, map: {}", promptType, path,
                 prompts.entrySet().stream()
                     .collect(Collectors.toMap(Entry::getKey, value -> value.getValue().length())));
-            return prompts;
+            return Collections.unmodifiableMap(prompts);
         } catch (IOException e) {
             log.warn("Failed to load {} prompts. path: {} |", promptType, path, e);
             return Collections.emptyMap();
         }
     }
 
-    @Bean
-    protected ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }

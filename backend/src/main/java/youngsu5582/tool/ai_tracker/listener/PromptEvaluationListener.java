@@ -10,7 +10,7 @@ import reactor.core.scheduler.Schedulers;
 import youngsu5582.tool.ai_tracker.domain.Prompt;
 import youngsu5582.tool.ai_tracker.event.PromptEvaluationEvent;
 import youngsu5582.tool.ai_tracker.repository.PromptRepository;
-import youngsu5582.tool.ai_tracker.ai.chat.service.OpenAiService;
+import youngsu5582.tool.ai_tracker.ai.chat.openai.OpenAiService;
 
 @Component
 @RequiredArgsConstructor
