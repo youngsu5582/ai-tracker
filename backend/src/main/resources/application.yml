@@ -10,6 +10,7 @@ spring:
 openai:
   api:
     key: "" # This will be overridden by application-local.yml or environment variables
+    model: gpt-3.5-turbo
 
 file:
   storage:
