@@ -5,36 +5,43 @@
   "description": "Tracks prompts and responses from AI services.",
   "permissions": [
     "storage",
-    "webRequest",
-    "webRequestBlocking"
+    "webRequest"
   ],
+  "options_ui": {
+    "page": "open-ai-fetch-interceptor/options.html",
+    "open_in_tab": false
+  },
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://chatgpt.com/*",
-    "https://gemini.google.com/*",
-    "http://localhost:11240/*"
+    "http://localhost/*"
   ],
   "background": {
-    "service_worker": "src/background-wrapper.js"
+    "service_worker": "open-ai-fetch-interceptor/background-wrapper.js"
   },
   "content_scripts": [
     {
       "matches": [
         "https://chat.openai.com/*",
-        "https://chatgpt.com/*",
-        "https://gemini.google.com/*"
+        "https://chatgpt.com/*"
       ],
       "js": [
-        "src/content.js",
-        "src/inject.js"
+        "open-ai-fetch-interceptor/logger.js",
+        "open-ai-fetch-interceptor/content.js",
+        "open-ai-fetch-interceptor/inject.js",
+        "open-ai-fetch-interceptor/add-button.js"
       ],
-      "run_at": "document_start" 
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/main_world_ai_tracker.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "open-ai-fetch-interceptor/fetch_interceptor.js"
+      ],
+      "matches": [
+        "https://chatgpt.com/*"
+      ]
     }
   ]
 }

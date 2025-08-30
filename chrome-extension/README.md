@@ -1,96 +1,138 @@
-# AI Activity Tracker - Chrome Extension Module
+# OpenAI Fetch Interceptor - Chrome Extension
 
-## 1. Overview
+---
 
-This module is the Chrome browser extension for the AI Activity Tracker application. Its primary function is to capture user interactions (prompts, model usage) on supported AI web interfaces and send this data to the backend server for analysis and storage.
+## English
 
-## 2. Features
+### 1. Overview
 
-*   **Prompt Capture**: Automatically detects and captures user-entered prompts from AI chat interfaces.
-*   **Model Detection**: Identifies the AI model being used for the prompt.
-*   **Multi-Platform Support**: Configured to work with popular AI platforms like ChatGPT (`chat.openai.com`, `chatgpt.com`) and Gemini (`gemini.google.com`). Easily extensible to support new platforms.
-*   **Robust Event Handling**: Captures prompts reliably across various user input methods (typing, copy-paste, Enter key, send button clicks).
-*   **Configurable Logging**: Includes a flexible logging system (`Logger.js`) that allows enabling/disabling debug logs via a configuration flag.
-*   **Modular Design**: Code is organized into separate, reusable modules for better maintainability.
+This Chrome extension is specifically designed to intercept and capture the full request and response data from conversations on OpenAI's ChatGPT website. It reliably captures entire conversation turns, including streaming content, and provides a mechanism to send this comprehensive data to a user-configured backend server.
 
-## 3. Tech Stack
+### 2. Features
 
-*   **Core Technologies**: Standard HTML, CSS, JavaScript.
-*   **Manifest Version**: Manifest V3.
+- **Comprehensive Capture**: Intercepts `fetch` requests to capture entire conversation turns, not just the final text.
+- **Streaming Support**: Correctly handles and reconstructs complete messages from `text/event-stream` responses.
+- **UI Integration**: Adds a custom button ('✨') to the ChatGPT interface for manual and explicit data forwarding.
+- **Configurable Endpoint**: Allows users to easily specify their own backend server URL via the extension's options page.
+- **Local Caching**: Temporarily stores captured data in the browser's local storage before sending.
 
-## 4. Setup and Running
+### 3. How it Works (Data Flow)
 
-### Prerequisites
+The extension operates with the following flow, all within the `open-ai-fetch-interceptor` directory:
 
-*   Google Chrome (or any Chromium-based browser).
-*   The backend application must be running (refer to the [main README.md](../../README.md) for backend setup).
+1.  **Injection**: `inject.js` runs first, injecting `fetch_interceptor.js` into the web page's main context.
+2.  **Interception**: `fetch_interceptor.js` overrides the `fetch` function to watch for API calls to ChatGPT.
+3.  **Message Passing**: When a response is captured, it's passed from `fetch_interceptor.js` → `content.js` → `background.js`.
+4.  **Data Caching**: `background.js` receives the data and uses `data-storage.js` to save the conversation turn into `chrome.storage.local`.
+5.  **UI Interaction**: `add-button.js` observes the page and injects a '✨' button onto new assistant messages.
+6.  **Sending Data**: When the user clicks the '✨' button, `add-button.js` signals `background.js`, which then retrieves the data from storage and sends it to the configured backend server.
 
-### Configuration
+### 4. Setup and Configuration
 
-The backend API endpoint and debug mode are configured in `src/config.js`:
+1.  **Load the Extension**:
+    - Open Chrome and navigate to `chrome://extensions`.
+    - Enable "Developer mode".
+    - Click "Load unpacked" and select the `chrome-extension/open-ai-fetch-interceptor` directory.
+2.  **Configure Endpoint**:
+    - Right-click the extension's icon in the Chrome toolbar and select "Options".
+    - In the options page, enter the full URL for your backend API endpoint (e.g., `http://localhost:11240/api/data/capture`).
+    - Click "Save".
 
-```javascript
-// chrome-extension/src/config.js
-const config = {
-    API_ENDPOINT: "http://localhost:11240/api/data/capture", // Your backend API endpoint
-    DEBUG_MODE: true // Set to true for development, false for production
-};
+### 5. Example Data
+
+The data sent to your server will be in the following JSON format. The `parts` array contains the full, reconstructed response from the AI.
+
+```json
+{
+  "id": "94cf5527-1f87-471f-89f4-c19586951327",
+  "parent": "e76a6ec0-e500-42d8-aacc-6ca96789383a",
+  "conservation_id": "68b1719b-659c-8326-9dbb-5cabef0fc52f",
+  "message": {
+    "id": "94cf5527-1f87-471f-89f4-c19586951327",
+    "author": {
+      "role": "assistant"
+    },
+    "create_time": 1756537581.914188,
+    "content": {
+      "content_type": "text",
+      "parts": [
+        "<The full text content of the assistant's response goes here...>"
+      ]
+    },
+    "status": "finished_successfully",
+    "end_turn": true,
+    "metadata": {
+      "model_slug": "gpt-5-thinking",
+      "parent_id": "e76a6ec0-e500-42d8-aacc-6ca96789383a"
+    }
+  }
+}
 ```
 
-### Loading the Extension in Chrome
+---
+<br>
 
-1.  **Open Chrome Extensions Page**:
-    *   Open your Chrome browser.
-    *   Type `chrome://extensions` in the address bar and press Enter.
-2.  **Enable Developer Mode**:
-    *   In the top right corner of the Extensions page, toggle on "Developer mode".
-3.  **Load Unpacked Extension**:
-    *   Click the "Load unpacked" button (usually in the top left corner).
-    *   A file dialog will appear. Navigate to your project directory and select the `chrome-extension` folder.
-4.  **Verify Loading**:
-    *   The "AI Activity Tracker" extension should now appear in your list of installed extensions.
+## 한글
 
-### Reloading the Extension
+### 1. 개요
 
-After making any changes to the extension's source code, you must reload the extension for the changes to take effect:
+이 크롬 확장 프로그램은 OpenAI의 ChatGPT 웹사이트에서 이루어지는 대화의 전체 요청 및 응답 데이터를 가로채고 캡처하기 위해 특별히 설계되었습니다. 스트리밍 콘텐츠를 포함한 전체 대화 턴을 안정적으로 캡처하며, 이 포괄적인 데이터를 사용자가 설정한 백엔드 서버로 전송하는 메커니즘을 제공합니다.
 
-1.  Go back to `chrome://extensions`.
-2.  Find the "AI Activity Tracker" extension.
-3.  Click the "Reload" button (a circular arrow icon) on the extension's card.
+### 2. 주요 기능
 
-## 5. Project Structure
+- **포괄적인 데이터 캡처**: 최종 텍스트뿐만 아니라, 전체 대화의 맥락을 파악하기 위해 `fetch` 요청 자체를 가로챕니다.
+- **스트리밍 응답 지원**: `text/event-stream`으로 전송되는 응답을 올바르게 처리하고 완전한 메시지로 재구성합니다.
+- **UI 연동**: ChatGPT 인터페이스에 커스텀 버튼('✨')을 추가하여, 사용자가 명시적으로 데이터를 전송할 수 있도록 합니다.
+- **설정 가능한 엔드포인트**: 확장 프로그램의 옵션 페이지를 통해 사용자가 직접 자신의 백엔드 서버 URL을 쉽게 지정할 수 있습니다.
+- **로컬 캐싱**: 캡처된 데이터를 전송하기 전에 브라우저의 로컬 스토리지에 임시 저장합니다.
 
-*   `src/`: Contains all JavaScript source files.
-    *   `background-wrapper.js`: Entry point for the background service worker, loads other scripts.
-    *   `background.js`: Handles communication with the backend and message passing.
-    *   `content.js`: Injected into AI service web pages to capture user interactions.
-    *   `config.js`: Global configuration settings (e.g., API endpoint, debug mode).
-    *   `logger.js`: Utility for controlled console logging.
-    *   `message-sender.js`: Helper for sending messages to the background script.
-    *   `platform-config.js`: Defines selectors and logic for different AI platforms (e.g., ChatGPT, Gemini).
-*   `manifest.json`: The manifest file for the Chrome extension, defining its properties, permissions, and scripts.
+### 3. 동작 방식 (데이터 흐름)
 
-## 6. Supported Platforms
+확장 프로그램은 `open-ai-fetch-interceptor` 디렉터리 내에서 아래와 같은 순서로 동작합니다.
 
-Currently configured to capture data from:
+1.  **스크립트 주입**: `inject.js`가 가장 먼저 실행되어, 웹 페이지의 메인 컨텍스트에 `fetch_interceptor.js`를 주입합니다.
+2.  **요청 가로채기**: `fetch_interceptor.js`가 `fetch` 함수를 오버라이드하여 ChatGPT로 가는 API 호출을 감시합니다.
+3.  **메시지 전달**: 응답이 캡처되면, `fetch_interceptor.js` → `content.js` → `background.js` 순서로 데이터가 전달됩니다.
+4.  **데이터 캐싱**: `background.js`는 전달받은 데이터를 `data-storage.js`를 통해 `chrome.storage.local`에 저장합니다.
+5.  **UI 상호작용**: `add-button.js`는 페이지의 변화를 감지하여 새로운 어시스턴트 메시지에 '✨' 버튼을 삽입합니다.
+6.  **데이터 전송**: 사용자가 '✨' 버튼을 클릭하면 `add-button.js`가 `background.js`에 신호를 보내고, `background.js`는 스토리지에서 해당 데이터를 가져와 설정된 백엔드 서버로 전송합니다.
 
-*   `chat.openai.com`
-*   `chatgpt.com`
-*   `gemini.google.com`
+### 4. 설치 및 설정
 
-To add support for a new platform, you would typically:
-1.  Add its hostname and corresponding selectors/logic to `src/platform-config.js`.
-2.  Update `manifest.json` to include the new platform's domain in `host_permissions` and `content_scripts` `matches`.
+1.  **확장 프로그램 로드**:
+    - 크롬 브라우저에서 `chrome://extensions` 주소로 이동합니다.
+    - "개발자 모드"를 활성화합니다.
+    - "압축 해제된 확장 프로그램을 로드합니다"를 클릭하고 `chrome-extension/open-ai-fetch-interceptor` 디렉터리를 선택합니다.
+2.  **엔드포인트 설정**:
+    - 크롬 툴바의 확장 프로그램 아이콘을 우클릭한 후 "옵션"을 선택합니다.
+    - 옵션 페이지에서 백엔드 API 엔드포인트의 전체 URL을 입력합니다. (예: `http://localhost:11240/api/data/capture`)
+    - "Save" 버튼을 클릭합니다.
 
-## 7. Debugging
+### 5. 데이터 예시
 
-To enable detailed debug logs in the browser's console:
-1.  Open `src/config.js`.
-2.  Set `DEBUG_MODE: true`.
-3.  Reload the extension from `chrome://extensions`.
+서버로 전송되는 데이터는 아래와 같은 JSON 형식입니다. `parts` 배열에 AI의 전체 응답 내용이 재구성되어 포함됩니다.
 
-Then, open the developer console (F12) on the AI service web page or for the extension's background page to see the logs.
-
-## 8. Contributing
-
-Refer to the [main project README.md](../../README.md) for general contribution guidelines.
+```json
+{
+  "id": "94cf5527-1f87-471f-89f4-c19586951327",
+  "parent": "e76a6ec0-e500-42d8-aacc-6ca96789383a",
+  "conservation_id": "68b1719b-659c-8326-9dbb-5cabef0fc52f",
+  "message": {
+    "id": "94cf5527-1f87-471f-89f4-c19586951327",
+    "author": { "role": "assistant" },
+    "create_time": 1756537581.914188,
+    "content": {
+      "content_type": "text",
+      "parts": [
+        "<AI 어시스턴트의 전체 응답 텍스트가 여기에 들어갑니다...>"
+      ]
+    },
+    "status": "finished_successfully",
+    "end_turn": true,
+    "metadata": {
+      "model_slug": "gpt-5-thinking",
+      "parent_id": "e76a6ec0-e500-42d8-aacc-6ca96789383a"
+    }
+  }
+}
+```
