@@ -1,7 +1,9 @@
 // chrome-extension/src/logger.js
 
 /**
- * Simple logging utility that respects a debug flag.
+ * Simple logging utility with a debug flag.
+ * - debug() : emitted only when debug is enabled
+ * - info,warn,error() : always emitted
  * Logs messages to the console only if debugging is enabled.
  */
 const Logger = {
@@ -20,12 +22,12 @@ const Logger = {
     const prefix = `[${context}]`;
     return {
       debug: (...args) => {
-        if (this.debugEnabled) {
-          console.log(prefix, "[Debug]", ...args);
+        if (Logger.debugEnabled) {
+          console.debug(prefix, "[Debug]", ...args);
         }
       },
       info: (...args) => {
-        console.log(prefix, "[Info]", ...args);
+        console.info(prefix, "[Info]", ...args);
       },
       warn: (...args) => {
         console.warn(prefix, "[Warn]", ...args);

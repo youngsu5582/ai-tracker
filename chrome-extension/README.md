@@ -46,7 +46,7 @@ The data sent to your server will be in the following JSON format. The `parts` a
 {
   "id": "94cf5527-1f87-471f-89f4-c19586951327",
   "parent": "e76a6ec0-e500-42d8-aacc-6ca96789383a",
-  "conservation_id": "68b1719b-659c-8326-9dbb-5cabef0fc52f",
+  "conversation_id": "68b1719b-659c-8326-9dbb-5cabef0fc52f",
   "message": {
     "id": "94cf5527-1f87-471f-89f4-c19586951327",
     "author": {
@@ -68,9 +68,6 @@ The data sent to your server will be in the following JSON format. The `parts` a
   }
 }
 ```
-
----
-<br>
 
 ## 한글
 

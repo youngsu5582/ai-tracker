@@ -15,13 +15,15 @@ const BUTTON_SELECTOR =
 const CUSTOM_BUTTON_CLASS = 'my-custom-server-button';
 
 const INITIAL_DELAY_MS = 500;
-const MAX_DELAY_MS = 2000;
-// 보수적으로 5분
+
+// 다시 실행하기 전 기다릴 시간 : 5초
+const MAX_DELAY_MS = 5 * 1000;
+// 버튼 등록을 위해 기다리는 총 시간 : 보수적으로 5분
 const TOTAL_DELAY_MS = 300 * 1000;
 
 /**
  * 어시스턴트 메시지 블록에 커스텀 버튼을 추가합니다.
- * 지수 백오프 재시도 로직과 3분의 타임아웃이 포함되어 있습니다.
+ * 지수 백오프 재시도 로직과 5분의 타임아웃이 포함되어 있습니다.
  * @param {HTMLElement} assistantMessageBlock - 버튼을 추가할 <article> 요소
  */
 function addCustomButton(messageBlock) {
@@ -40,7 +42,7 @@ function addCustomButton(messageBlock) {
     logger.debug(
         `[tryToAddButton] Attempting to add button. Current messageBlock.dataset.turnId: ${messageBlock.dataset.turnId}`);
     if (Date.now() - startTime > TOTAL_DELAY_MS) {
-      logger.error('[tryToAddButton] 버튼 추가 시간 초과 (3분): 툴바를 찾을 수 없습니다.',
+      logger.error('[tryToAddButton] 버튼 추가 시간 초과 (5분): 툴바를 찾을 수 없습니다.',
           messageBlock);
       return;
     }
@@ -66,7 +68,7 @@ function addCustomButton(messageBlock) {
 
           if (finalTurnId && !finalTurnId.startsWith('request-')
               && !finalTurnId.startsWith('placeholder-request-')) {
-            alert(`서버에 데이터 전송합니다! messageID:${finalTurnId}`);
+            logger.info(`서버에 데이터 전송 요청: ${finalTurnId}`);
             const message = {
               type: 'SERVER_SEND_BUTTON_CLICKED',
               payload: {
@@ -79,14 +81,12 @@ function addCustomButton(messageBlock) {
                     `[onclick] 백그라운드 메시지 전송 실패:${JSON.stringify(
                         message)} | error: ${chrome.runtime.lastError.message}`);
               } else {
-                logger.info(
-                    `[onclick] 백그라운드 메시지 전송:${JSON.stringify(message)}`);
+                logger.info(`[onclick] 백그라운드 메시지 전송:${JSON.stringify(message)} ack:${JSON.stringify(response)}`);
               }
             })
           } else {
-            alert('메시지 ID가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.');
             logger.warn(
-                `[onclick] Attempted to send message before final turnId was available. finalTurnId: ${finalTurnId}. messageBlock.dataset.turnId: ${messageBlock.dataset.turnId}`);
+                `메시지 ID 미준비. 잠시 후 다시 시도해주세요. finalTurnId: ${finalTurnId}. messageBlock.dataset.turnId: ${messageBlock.dataset.turnId}`);
           }
         }
         button.innerHTML = '<span class="flex items-center justify-center touch:w-10 h-8 w-8">✨</span>';
@@ -144,6 +144,7 @@ let findTimeout = 0;
 const findContainerInterval = setInterval(() => {
   const container = document.querySelector(MESSAGE_CONTAINER_SELECTOR);
   if (container) {
+    logger.info('MutationObserver가 DOM 변경 감시를 시작했습니다.');
     clearInterval(findContainerInterval);
     clearTimeout(findTimeout);
     startObserving(container);
@@ -155,4 +156,3 @@ findTimeout = setTimeout(() => {
   logger.error(`30초 내에 감시 대상 컨테이너(${MESSAGE_CONTAINER_SELECTOR})를 찾지 못했습니다.`);
 }, 30 * 1000);
 
-logger.info('MutationObserver가 DOM 변경 감시를 시작했습니다.');

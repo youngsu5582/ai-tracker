@@ -1,6 +1,6 @@
 // Asynchronously initialize the Logger's global state first.
 (async () => {
-  const { debugMode } = await chrome.storage.sync.get({ debugMode: true });
+  const {debugMode} = await chrome.storage.sync.get({debugMode: true});
   Logger.init(debugMode); // Call init on the main Logger object
   // Use console.log for this meta-logging as the logger instance isn't fully configured yet.
   console.log(`[Content] Logger initialized with debugMode: ${debugMode}`);
@@ -20,9 +20,13 @@ const logger = Logger.create();
 
 // Listen for messages from the main world script (inject.js)
 window.addEventListener('message', (event) => {
+  if (event.source !== window) {
+    return;
+  }
+
+  const data = event.data;
   // Only accept messages from our own window and with a specific type
-  if (event.source === window && event.data && event.data.type
-      === 'FETCH_INTERCEPTED') {
+  if (data && data.type === 'FETCH_INTERCEPTED') {
     logger.debug("Received message from MainWorld:", event.data);
     // Send the data to the background script
     chrome.runtime.sendMessage(event.data);

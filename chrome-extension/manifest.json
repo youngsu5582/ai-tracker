@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI Activity Tracker",
-  "version": "0.0.6",
-  "description": "Tracks prompts and responses from AI services.",
+  "version": "0.0.1",
+  "description": "send prompt data(from AI services) to any address",
   "permissions": [
     "storage",
     "webRequest"
@@ -13,8 +13,10 @@
   },
   "host_permissions": [
     "https://chat.openai.com/*",
-    "https://chatgpt.com/*",
-    "http://localhost/*"
+    "https://chatgpt.com/*"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "open-ai-fetch-interceptor/background-wrapper.js"
@@ -40,7 +42,8 @@
         "open-ai-fetch-interceptor/fetch_interceptor.js"
       ],
       "matches": [
-        "https://chatgpt.com/*"
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
       ]
     }
   ]

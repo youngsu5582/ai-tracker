@@ -135,7 +135,7 @@
 
         while (true) {
           const {value, done} = await reader.read();
-          
+
           if (value) { // Process the chunk if it exists
             processChunk(value);
           }
@@ -150,44 +150,48 @@
         // This ensures any multi-byte characters or final data not ending with \n are processed.
         const finalBufferContent = decoder.decode();
         if (finalBufferContent) {
-            buffer += finalBufferContent; // Add to buffer for final processing
-            let parts = buffer.split('\n');
-            buffer = parts.pop(); // Should be empty or just a final [DONE]
-            for (const part of parts) {
-                if (part.startsWith('data:')) {
-                    const data = part.substring(5).trim();
-                    if (data && data !== '[DONE]') { // Avoid processing [DONE] again
-                        try {
-                            const jsonPart = JSON.parse(data);
-                            // Accumulate content from final part
-                            if (typeof jsonPart.v === 'string') {
-                                fullResponseText += jsonPart.v;
-                            }
-                            else if (jsonPart.p && jsonPart.p.startsWith('/message/content/parts/') && typeof jsonPart.v === 'string') {
-                                fullResponseText += jsonPart.v;
-                            }
-                            else if (Array.isArray(jsonPart.v)) {
-                                for (const patch of jsonPart.v) {
-                                    if (patch.p && patch.p.startsWith('/message/content/parts/') && patch.o === 'append' && typeof patch.v === 'string') {
-                                        fullResponseText += patch.v;
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            LOGGER.warn(`⚠️ [WARN] Error processing final decoder flush part. ${e.message}`);
-                        }
+          buffer += finalBufferContent; // Add to buffer for final processing
+          let parts = buffer.split('\n');
+          buffer = parts.pop(); // Should be empty or just a final [DONE]
+          for (const part of parts) {
+            if (part.startsWith('data:')) {
+              const data = part.substring(5).trim();
+              if (data && data !== '[DONE]') { // Avoid processing [DONE] again
+                try {
+                  const jsonPart = JSON.parse(data);
+                  // Accumulate content from final part
+                  if (typeof jsonPart.v === 'string') {
+                    fullResponseText += jsonPart.v;
+                  }
+                  else if (jsonPart.p && jsonPart.p.startsWith('/message/content/parts/') && typeof jsonPart.v === 'string') {
+                    fullResponseText += jsonPart.v;
+                  }
+                  else if (Array.isArray(jsonPart.v)) {
+                    for (const patch of jsonPart.v) {
+                      if (patch.p && patch.p.startsWith('/message/content/parts/') && patch.o === 'append' && typeof patch.v === 'string') {
+                        fullResponseText += patch.v;
+                      }
                     }
+                  }
+                } catch (e) {
+                  LOGGER.warn(`⚠️ [WARN] Error processing final decoder flush part. ${e.message}`);
                 }
+              }
             }
+          }
         }
 
+        console.log(jsonObject);
         // Assign the fully concatenated text to the final object
         if (jsonObject.message && jsonObject.message.content) {
-            jsonObject.message.content.parts[0] = fullResponseText;
+          // Ensure that .parts is an array before trying to access an index.
+          if (!Array.isArray(jsonObject.message.content.parts)) {
+            jsonObject.message.content.parts = [];
+          }
+          jsonObject.message.content.parts[0] = fullResponseText;
         } else {
-            LOGGER.error("Cannot assemble final message, jsonObject is missing structure.", {jsonObject});
+          LOGGER.error("Cannot assemble final message, jsonObject is missing structure.", {jsonObject});
         }
-
         LOGGER.debug(`[Data]`, jsonObject);
         if (fullResponseText) {
           LOGGER.info(
