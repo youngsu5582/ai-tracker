@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>AI Activity Tracker Options</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; padding: 1em; width: 300px; }
+    div { margin-bottom: 10px; }
+    label { display: block; margin-bottom: 5px; }
+    input { width: 100%; padding: 5px; box-sizing: border-box; }
+    button { padding: 8px 12px; }
+    #status { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Settings</h1>
+  <div>
+    <label for="api-endpoint">Backend API Endpoint:</label>
+    <input type="url" id="api-endpoint" required
+           placeholder="https://example.com/api/data/capture"
+           autocomplete="off" inputmode = "url">
+  </div>
+  <div>
+    <label>
+      <input type="checkbox" id="debug-mode">
+      Enable Debug Mode
+    </label>
+  </div>
+  <button id="save" type = "button">Save</button>
+  <div id="status" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="options.js"></script>
+</body>
+</html>

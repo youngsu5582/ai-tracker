@@ -65,13 +65,14 @@ Before you begin, ensure you have the following installed:
 
 1.  **Clone the repository**:
     ```bash
-    git clone /Users/iyeongsu/Desktop/ai-tracker/ai_tracker
-    cd ai_tracker
+    git clone https://github.com/youngsu5582/ai-tracker.git
     ```
 2.  **Configure OpenAI API Key**:
-    Open `backend/src/main/resources/application.properties` and replace `YOUR_API_KEY` with your actual OpenAI API Key:
-    ```properties
-    openai.api.key=sk-YOUR_ACTUAL_OPENAI_API_KEY
+    Open `backend/src/main/resources/application.yml` and replace `sk-YOUR_ACTUAL_OPENAI_API_KEY` with your actual OpenAI API Key:
+    ```yaml
+    openai:
+      api:
+        key: sk-YOUR_ACTUAL_OPENAI_API_KEY
     ```
 3.  **Start MongoDB with Docker Compose**:
     Navigate to the project root directory (where `docker-compose.yml` is located) and run:
@@ -115,17 +116,13 @@ Before you begin, ensure you have the following installed:
     *   Open Chrome and navigate to `chrome://extensions`.
     *   Enable "Developer mode" (top right corner).
     *   Click "Load unpacked" (top left corner).
-    *   Select the `chrome-extension` directory from your project.
+    *   Select the `chrome-extension/open-ai-fetch-interceptor` directory from your project.
 2.  **Configure API Endpoint**:
-    The extension's API endpoint is configured in `chrome-extension/src/config.js`. Ensure it points to your backend:
-    ```javascript
-    const config = {
-        API_ENDPOINT: "http://localhost:11240/api/data/capture",
-        DEBUG_MODE: true // Set to false for production
-    };
-    ```
+    *   Right-click the extension's icon in the Chrome toolbar and select "Options".
+    *   In the options page, enter the full URL for your backend API endpoint (e.g., `http://localhost:11240/api/data/capture`).
+    *   Click "Save".
 3.  **Reload the Extension**:
-    After any changes to the extension files, go back to `chrome://extensions` and click the "Reload" button (circular arrow icon) for the "AI Activity Tracker" extension.
+    After any changes to the extension files, go back to `chrome://extensions` and click the "Reload" button (circular arrow icon) for the extension.
 
 ## 6. Data Storage
 
