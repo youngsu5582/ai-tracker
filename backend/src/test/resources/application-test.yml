@@ -1,0 +1,13 @@
+logging:
+  structured:
+    format:
+      console: ecs
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#  threads:
+#    virtual:
+#      enabled: true
