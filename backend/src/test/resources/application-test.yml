@@ -1,0 +1,15 @@
+logging:
+  structured:
+    format:
+      console: ecs
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+#  threads:
+#    virtual:
+#      enabled: true
