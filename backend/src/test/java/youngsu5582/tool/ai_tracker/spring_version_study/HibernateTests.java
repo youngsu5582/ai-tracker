@@ -1,21 +1,18 @@
 package youngsu5582.tool.ai_tracker.spring_version_study;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.PersistentObjectException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+import org.hibernate.StaleObjectStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.transaction.annotation.Transactional;
 import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HibernateTests extends IntegrationTestSupport {
 
@@ -27,23 +24,9 @@ class HibernateTests extends IntegrationTestSupport {
 
     @BeforeEach
     void setup() {
-        testEntityRepository.deleteAll();
-    }
-
-    @Entity
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    static class TestEntity {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        private String name;
-
-        public void changeName(String name) {
-            this.name = name;
-        }
+        // deleteAll : SELECT 로 엔티티 조회 -> 엔티티 상태 관리 -> DELETE 쿼리 N번 실행 ( 내부 반복문 )
+        // deleteAllInBatch : DB 에 직접 벌크 연산, JPA 생명주기 무시 + 영속 컨텍스트 불일치
+        testEntityRepository.deleteAllInBatch();
     }
 
     @Test
@@ -52,8 +35,8 @@ class HibernateTests extends IntegrationTestSupport {
         // given
         TestEntity entity = new TestEntity();
         entity.changeName("initial name");
-        testEntityRepository.save(entity);
-
+        var saved = testEntityRepository.saveAndFlush(entity);
+        assertThat(saved.getId()).isNotNull();
         assertThat(testEntityRepository.findAll()).hasSize(1);
     }
 
@@ -62,6 +45,8 @@ class HibernateTests extends IntegrationTestSupport {
     void persist_newEntityWithId_throwsException() {
         TestEntity entity = new TestEntity(2L, "");
         assertThatThrownBy(() -> testEntityRepository.save(entity))
-            .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+            .isInstanceOfAny(ObjectOptimisticLockingFailureException.class, PersistenceException.class)
+            // check root exception
+            .hasRootCauseInstanceOf(StaleObjectStateException.class);
     }
 }

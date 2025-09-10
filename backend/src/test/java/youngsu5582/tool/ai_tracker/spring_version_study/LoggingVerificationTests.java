@@ -1,5 +1,7 @@
 package youngsu5582.tool.ai_tracker.spring_version_study;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,21 +10,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
-import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OutputCaptureExtension.class)
-class LoggingVerificationTests extends IntegrationTestSupport {
+@SpringBootTest(
+    properties = {
+        "logging.structured.format.console=ecs",
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration"
+            + ",org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,"
+    }
+)
+class LoggingVerificationTests {
 
     private final Logger logger = LoggerFactory.getLogger(LoggingVerificationTests.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     @DisplayName("로그가 ECS JSON 형식으로 올바르게 출력된다.")
-    void structuredLogging_ecsFormat_isCorrect(CapturedOutput output) throws JsonProcessingException {
+    void structuredLogging_ecsFormat_isCorrect(CapturedOutput output)
+        throws JsonProcessingException {
         // given
         String testMessage = "This is a structured log test.";
 
@@ -31,9 +39,9 @@ class LoggingVerificationTests extends IntegrationTestSupport {
 
         // then
         String logLine = output.getOut().lines()
-                .filter(line -> line.contains(testMessage))
-                .findFirst()
-                .orElse(null);
+            .filter(line -> line.contains(testMessage))
+            .findFirst()
+            .orElse(null);
 
         assertThat(logLine).isNotNull();
 

@@ -5,18 +5,15 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @ActiveProfiles("test")
 @SpringBootTest
-@Testcontainers
 public abstract class IntegrationTestSupport {
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:16.1";
 
-    @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>(POSTGRES_IMAGE_NAME)
-            .waitingFor(Wait.forListeningPort());
+    static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>(
+        POSTGRES_IMAGE_NAME)
+        .waitingFor(Wait.forListeningPort());
 }

@@ -7,7 +7,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
 #  threads:
 #    virtual:
 #      enabled: true

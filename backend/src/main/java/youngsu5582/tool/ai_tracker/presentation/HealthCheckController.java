@@ -1,19 +1,18 @@
 package youngsu5582.tool.ai_tracker.presentation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class HealthCheckController {
 
-    private static final Logger logger = LoggerFactory.getLogger(HealthCheckController.class);
-
-    @GetMapping("/health")
+    @GetMapping(value = "/health",produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> healthCheck() {
-        logger.info("Health check endpoint called by thread: {}", Thread.currentThread());
+        log.info("Health check endpoint called by thread: {}", Thread.currentThread());
         return ResponseEntity.ok("OK");
     }
 }
