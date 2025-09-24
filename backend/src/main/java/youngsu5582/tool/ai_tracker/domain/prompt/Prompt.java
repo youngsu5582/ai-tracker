@@ -1,0 +1,65 @@
+package youngsu5582.tool.ai_tracker.domain.prompt;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.Objects;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import youngsu5582.tool.ai_tracker.common.entity.AuditEntity;
+
+@Entity
+@Table
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+public class Prompt extends AuditEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false, insertable = false)
+    long id;
+
+    @Builder.Default
+    UUID uuid = UUID.randomUUID();
+
+    @Enumerated(EnumType.STRING)
+    PromptStatus status;
+
+    /**
+     * payload 는 JdbcTypeCode 를 사용하므로 언제든 수정 가능하다
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    String payload;
+
+    @Override
+    public boolean equals(Object o) {
+        return Objects.equals(uuid, ((Prompt) o).uuid);
+    }
+
+    // https://thorben-janssen.com/lombok-hibernate-how-to-avoid-common-pitfalls/?utm_source=chatgpt.com 참고
+
+    // Primary Key 불일치
+    // Lombok 의 equalsAndHashCode 는 클래스 모든 필드를 사용해 equals, hashCode 메소드 생성
+    // hashCode 는 null 이였던 id 값 기반으로 계산
+    // DB save 하면서 id 가 채워지면 hashCode 가 깨져서 hashMap, hashSet 에 넣으면 못 찾게 될 수 있다.
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
+}
