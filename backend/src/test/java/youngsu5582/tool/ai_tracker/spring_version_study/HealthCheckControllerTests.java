@@ -1,5 +1,7 @@
 package youngsu5582.tool.ai_tracker.spring_version_study;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -8,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import youngsu5582.tool.ai_tracker.presentation.HealthCheckController;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(HealthCheckController.class)
 class HealthCheckControllerTests {

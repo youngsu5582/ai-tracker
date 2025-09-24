@@ -1,16 +1,20 @@
 package youngsu5582.tool.ai_tracker.common.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+@MappedSuperclass
 public abstract class AuditEntity {
 
-    @CreatedBy
+    @CreatedDate
     Instant createdAt;
 
-    @LastModifiedBy
+    @LastModifiedDate
     Instant updatedAt;
 
-    boolean deleted;
+    @Column(nullable = false)
+    boolean deleted = false;
 }

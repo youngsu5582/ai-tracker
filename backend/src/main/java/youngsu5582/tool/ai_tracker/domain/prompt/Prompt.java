@@ -33,22 +33,30 @@ public class Prompt extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, insertable = false)
-    long id;
+    private long id;
 
     @Builder.Default
-    UUID uuid = UUID.randomUUID();
+    private UUID uuid = UUID.randomUUID();
 
     @Enumerated(EnumType.STRING)
-    PromptStatus status;
+    @Column(nullable = false)
+    private PromptStatus status = PromptStatus.RECEIVED;
 
     /**
      * payload 는 JdbcTypeCode 를 사용하므로 언제든 수정 가능하다
      */
     @JdbcTypeCode(SqlTypes.JSON)
-    String payload;
+    @Column(columnDefinition = "jsonb")
+    private String payload;
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         return Objects.equals(uuid, ((Prompt) o).uuid);
     }
 
