@@ -48,7 +48,7 @@ class PromptRepositoryTest extends IntegrationTestSupport {
         @Test
         @DisplayName("UUID 로 조회할 수 있다.")
         void findByUUID() {
-            var result = promptRepository.findByUuid(prompt.uuid);
+            var result = promptRepository.findByUuid(prompt.getUuid());
             assertThat(result).isPresent()
                 .get()
                 .isEqualTo(prompt);

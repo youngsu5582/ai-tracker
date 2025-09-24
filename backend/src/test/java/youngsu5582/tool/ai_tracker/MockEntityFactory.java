@@ -19,8 +19,7 @@ public class MockEntityFactory {
         try {
             return supplier.get();
         } catch (Throwable e) {
-            // sneaky throws
-            return null;
+            throw new IllegalStateException("Failed to handle exception", e);
         }
     }
 
