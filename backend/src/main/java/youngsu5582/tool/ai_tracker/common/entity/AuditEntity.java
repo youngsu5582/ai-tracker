@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @MappedSuperclass
+// @Where is Deprecated
 public abstract class AuditEntity {
 
     @CreatedDate

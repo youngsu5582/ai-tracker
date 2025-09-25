@@ -17,16 +17,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import youngsu5582.tool.ai_tracker.common.entity.AuditEntity;
 
 @Entity
-@Table
+@Table(name = "prompts")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@SQLRestriction("deleted = false")
+@SQLDelete(sql = "UPDATE prompts SET deleted = true WHERE id = ?")
 @EntityListeners(AuditingEntityListener.class)
 public class Prompt extends AuditEntity {
 
@@ -40,6 +44,7 @@ public class Prompt extends AuditEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private PromptStatus status = PromptStatus.RECEIVED;
 
     /**
