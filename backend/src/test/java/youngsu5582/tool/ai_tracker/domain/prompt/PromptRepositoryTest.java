@@ -2,6 +2,8 @@ package youngsu5582.tool.ai_tracker.domain.prompt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +19,9 @@ class PromptRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     private PromptRepository promptRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Nested
     @DisplayName("Prompt 레포지토리 조회는")
@@ -70,6 +75,25 @@ class PromptRepositoryTest extends IntegrationTestSupport {
                 var receivedResult = promptRepository.findByStatus(PromptStatus.RECEIVED);
                 assertThat(receivedResult).hasSize(1);
             });
+        }
+
+        @Test
+        @DisplayName("삭제는 실제 삭제가 되는게 아니다.")
+        void softDelete() {
+            promptRepository.delete(prompt);
+            promptRepository.flush();
+
+            // JPA 조회
+            var findResult = promptRepository.findByUuid(prompt.getUuid());
+            assertThat(findResult).isEmpty();
+
+            // 직접 조회
+            Object isDeleted = entityManager.createNativeQuery(
+                    "SELECT deleted FROM prompts WHERE uuid = :uuid")
+                .setParameter("uuid", prompt.getUuid())
+                .getSingleResult();
+
+            assertThat(isDeleted).isEqualTo(true);
         }
     }
 
