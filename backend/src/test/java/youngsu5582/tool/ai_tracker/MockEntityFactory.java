@@ -1,6 +1,7 @@
 package youngsu5582.tool.ai_tracker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptStatus;
 
@@ -12,6 +13,19 @@ public class MockEntityFactory {
         return Prompt.builder()
             .status(promptStatus)
             .payload(handleException(() -> objectMapper.writeValueAsString("value")))
+            .build();
+    }
+
+    public static Category createCategory(String name) {
+        return Category.builder()
+            .name(name)
+            .build();
+    }
+
+    public static Category createCategory(String name, Category parent) {
+        return Category.builder()
+            .name(name)
+            .parentCategory(parent)
             .build();
     }
 
