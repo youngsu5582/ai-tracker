@@ -1,10 +1,12 @@
 package youngsu5582.tool.ai_tracker.domain.prompt;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +14,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import youngsu5582.tool.ai_tracker.MockEntityFactory;
+import youngsu5582.tool.ai_tracker.domain.tag.Tag;
+import youngsu5582.tool.ai_tracker.domain.tag.TagRepository;
 import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
 
 class PromptRepositoryTest extends IntegrationTestSupport {
@@ -23,15 +28,23 @@ class PromptRepositoryTest extends IntegrationTestSupport {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    private TagRepository tagRepository;
+
+    Prompt prompt;
+
+    @BeforeEach
+    void setUp() {
+        prompt = promptRepository.save(MockEntityFactory.createPrompt(PromptStatus.COMPLETED));
+    }
+
     @Nested
     @DisplayName("Prompt 레포지토리 조회는")
-    class PromptRepositoryRead {
+    class PromptRepositoryOnlyTests {
 
-        Prompt prompt;
 
         @BeforeEach
         void setUp() {
-            prompt = promptRepository.save(MockEntityFactory.createPrompt(PromptStatus.COMPLETED));
 
             // 완료 2개, 분석중 1개, 수신 1개, 실패 1개를 추가한다.
             promptRepository.saveAll(
@@ -95,6 +108,32 @@ class PromptRepositoryTest extends IntegrationTestSupport {
 
             assertThat(isDeleted).isEqualTo(true);
         }
+
     }
 
+    @Nested
+    @DisplayName("프롬프트와 태그는")
+    class PromptRepositoryWithTags {
+
+        @Test
+        @Transactional
+        @DisplayName("1:N 관계로 관리한다.")
+        void oneToManyWithPromptTags() {
+            Tag tag1 = MockEntityFactory.createTag("spring");
+            Tag tag2 = MockEntityFactory.createTag("java");
+            tagRepository.saveAll(List.of(tag1, tag2));
+            prompt.addTag(tag1);
+            prompt.addTag(tag2);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            var findResult = promptRepository.findByUuid(prompt.getUuid());
+            assertThat(findResult)
+                .get()
+                .extracting(Prompt::getPromptTags, as(InstanceOfAssertFactories.LIST))
+                .extracting("tag")
+                .containsExactlyInAnyOrder(tag1, tag2);
+        }
+    }
 }
