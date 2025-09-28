@@ -43,3 +43,7 @@ prompts/**.*
 prompts/keywords/**.*
 backend/prompts/keywords/**.*
 backend/prompts/main_keywords/**.*
+
+#### backlog-md
+
+/backlog/tasks/**.*
