@@ -32,10 +32,10 @@ public class Tag extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, insertable = false)
     private Long id;
 
     @Builder.Default
+    @Column(nullable = false, unique = true)
     private UUID uuid = UUID.randomUUID();
 
     private String name;

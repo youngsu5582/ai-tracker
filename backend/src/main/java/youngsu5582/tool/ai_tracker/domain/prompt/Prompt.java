@@ -11,9 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -61,7 +61,7 @@ public class Prompt extends AuditEntity {
 
     @OneToMany(mappedBy = "prompt", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<PromptTag> promptTags = new ArrayList<>();
+    private Set<PromptTag> promptTags = new HashSet<>();
 
     public void addTag(Tag tag) {
         PromptTag promptTag = new PromptTag(this, tag);
