@@ -11,4 +11,6 @@ public class PromptTagId implements Serializable {
     private Long prompt;
     private Long tag;
 
+    private static final long serialVersionUID = 1L;
+
 }

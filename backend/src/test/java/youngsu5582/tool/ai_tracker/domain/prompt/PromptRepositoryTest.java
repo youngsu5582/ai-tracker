@@ -1,12 +1,11 @@
 package youngsu5582.tool.ai_tracker.domain.prompt;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
-import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +130,7 @@ class PromptRepositoryTest extends IntegrationTestSupport {
             var findResult = promptRepository.findByUuid(prompt.getUuid());
             assertThat(findResult)
                 .get()
-                .extracting(Prompt::getPromptTags, as(InstanceOfAssertFactories.LIST))
+                .extracting(Prompt::getPromptTags, LIST)
                 .extracting("tag")
                 .containsExactlyInAnyOrder(tag1, tag2);
         }
