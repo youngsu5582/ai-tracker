@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptStatus;
-import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 
 public class MockEntityFactory {
 
@@ -14,12 +13,6 @@ public class MockEntityFactory {
         return Prompt.builder()
             .status(promptStatus)
             .payload(handleException(() -> objectMapper.writeValueAsString("value")))
-            .build();
-    }
-
-    public static Tag createTag(String name) {
-        return Tag.builder()
-            .name(name)
             .build();
     }
 

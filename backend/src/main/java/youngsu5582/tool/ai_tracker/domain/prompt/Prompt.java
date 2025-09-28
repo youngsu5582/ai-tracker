@@ -1,6 +1,5 @@
 package youngsu5582.tool.ai_tracker.domain.prompt;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -9,10 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -26,7 +22,6 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import youngsu5582.tool.ai_tracker.common.entity.AuditEntity;
-import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 
 @Entity
 @Table(name = "prompts")
@@ -42,7 +37,7 @@ public class Prompt extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, insertable = false)
-    private Long id;
+    private long id;
 
     @Builder.Default
     private UUID uuid = UUID.randomUUID();
@@ -58,15 +53,6 @@ public class Prompt extends AuditEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private String payload;
-
-    @OneToMany(mappedBy = "prompt", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PromptTag> promptTags = new ArrayList<>();
-
-    public void addTag(Tag tag) {
-        PromptTag promptTag = new PromptTag(this, tag);
-        this.promptTags.add(promptTag);
-    }
 
     @Override
     public boolean equals(Object o) {
