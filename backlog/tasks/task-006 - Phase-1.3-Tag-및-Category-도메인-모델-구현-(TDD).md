@@ -4,7 +4,7 @@ title: 'Phase 1.3: Tag 및 Category 도메인 모델 구현 (TDD)'
 status: In Progress
 assignee: []
 created_date: '2025-09-24 09:41'
-updated_date: '2025-09-25 15:54'
+updated_date: '2025-09-25 14:52'
 labels:
   - phase-1
   - backend
@@ -22,10 +22,10 @@ tags, categories, prompt_tags 테이블에 해당하는 JPA 엔티티와 Reposit
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Tag, Category 엔티티 및 각각의 JpaRepository를 구현합니다.
-- [x] #2 Category 엔티티에 자기 참조 관계(@ManyToOne)를 설정하여 계층 구조를 구현합니다.
-- [x] #3 Prompt와 Tag의 다대다 관계를 표현하기 위한 조인 테이블용 PromptTag 엔티티를 구현합니다. (@IdClass 사용)
-- [x] #4 TDD 사이클에 따라, 각 Repository의 저장/조회 및 관계 매핑에 대한 통합 테스트를 작성하고 통과시킵니다.
+- [ ] #1 Tag, Category 엔티티 및 각각의 JpaRepository를 구현합니다.
+- [ ] #2 Category 엔티티에 자기 참조 관계(@ManyToOne)를 설정하여 계층 구조를 구현합니다.
+- [ ] #3 Prompt와 Tag의 다대다 관계를 표현하기 위한 조인 테이블용 PromptTag 엔티티를 구현합니다. (@IdClass 사용)
+- [ ] #4 TDD 사이클에 따라, 각 Repository의 저장/조회 및 관계 매핑에 대한 통합 테스트를 작성하고 통과시킵니다.
 <!-- AC:END -->
 
 ## Implementation Notes
