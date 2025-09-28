@@ -30,11 +30,9 @@ class CategoryRepositoryTests extends IntegrationTestSupport {
     @Transactional
     @DisplayName("카테고리는 부모를 가지는 계층적 구조로 관리된다.")
     void categoryHierarchy() {
-        var findResultOpt = categoryRepository.findByUuid(child.getUuid());
-        assertThat(findResultOpt).isPresent();
-        var findResult = findResultOpt.get();
+        var findResult = categoryRepository.findByUuid(child.getUuid()).get();
 
-        var categories = new ArrayList<Category>();
+        var categories = new ArrayList<>();
         var next = findResult;
         while (next != null) {
             categories.add(next);

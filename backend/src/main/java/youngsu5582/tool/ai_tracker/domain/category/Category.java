@@ -35,17 +35,17 @@ public class Category extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false, insertable = false)
     private long id;
 
     @Builder.Default
-    @Column(nullable = false, unique = true)
     private UUID uuid = UUID.randomUUID();
 
     @Column(unique = true, nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(nullable = true)
     private Category parentCategory;
 
     @Override
