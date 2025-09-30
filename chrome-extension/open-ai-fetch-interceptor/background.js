@@ -3,7 +3,7 @@
 
 logger.info("백그라운드 서비스 워커 시작됨: Fetch 오버라이딩 데이터 수신 준비 완료");
 // is my sample URL!
-const DEFAULT_SERVER_URL = 'http://localhost:11240/api/data/capture';
+const DEFAULT_SERVER_URL = 'http://localhost:11240/api/v1/prompts';
 const POST_CONVERSATION_PATH = '/f/conversation';
 
 // Listen for messages from content scripts
@@ -63,7 +63,7 @@ function executePostMessageAPI(message) {
 
 async function executeServerSendButtonClick(message, sendResponse) {
   const {turnId} = message.payload;
-  logger.debug(`서버로 보낼 데이터 준비, turnId: ${turnId}`);
+  logger.debug(`서버로 보낼 데이터 준비, 주소: ${DEFAULT_SERVER_URL} | turnId: ${turnId}`);
 
   try {
     const {apiEndpoint} = await chrome.storage.sync.get({
