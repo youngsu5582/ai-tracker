@@ -20,10 +20,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import youngsu5582.tool.ai_tracker.common.entity.AuditEntity;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
@@ -52,12 +50,10 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private PromptStatus status = PromptStatus.RECEIVED;
 
-    /**
-     * payload 는 JdbcTypeCode 를 사용하므로 언제든 수정 가능하다
-     */
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
     private String payload;
+
+    // 제공자가 제공해주는 메시지 ID
+    private String messageId;
 
     @OneToMany(mappedBy = "prompt", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

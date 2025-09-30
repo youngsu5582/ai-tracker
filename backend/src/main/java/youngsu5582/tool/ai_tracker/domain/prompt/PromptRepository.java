@@ -10,4 +10,6 @@ public interface PromptRepository extends JpaRepository<Prompt, Long> {
     Optional<Prompt> findByUuid(UUID uuid);
 
     List<Prompt> findByStatus(PromptStatus promptStatus);
+
+    Optional<Prompt> findByMessageId(String messageId);
 }
