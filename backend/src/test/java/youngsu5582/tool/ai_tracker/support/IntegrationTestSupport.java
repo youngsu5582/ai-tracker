@@ -5,13 +5,21 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptRepository;
 
+@TestExecutionListeners(
+    listeners = EventCaptureListener.class,
+    mergeMode = MergeMode.MERGE_WITH_DEFAULTS
+)
 @ActiveProfiles("test")
+@Import(EventCaptureListener.class)
 @SpringBootTest
 public abstract class IntegrationTestSupport {
 
@@ -32,5 +40,5 @@ public abstract class IntegrationTestSupport {
     protected IngestionService ingestionService;
 
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 }

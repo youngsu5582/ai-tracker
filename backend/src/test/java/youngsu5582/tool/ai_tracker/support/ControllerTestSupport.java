@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 
@@ -14,10 +13,7 @@ import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 @WebMvcTest
 public abstract class ControllerTestSupport {
 
-    @Autowired
-    protected MockMvc mockMvc;
-
-    protected final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    protected final ObjectMapper objectMapper = new ObjectMapper()
         .registerModules(new JavaTimeModule());
 
     @Autowired
@@ -25,6 +21,4 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected IngestionService ingestionService;
-
-
 }

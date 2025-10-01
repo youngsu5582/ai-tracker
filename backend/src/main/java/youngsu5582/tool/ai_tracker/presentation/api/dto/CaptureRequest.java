@@ -2,6 +2,8 @@ package youngsu5582.tool.ai_tracker.presentation.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +16,9 @@ import lombok.NoArgsConstructor;
  * 루트 DTO
  */
 @Data
-@Builder
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CaptureRequest {
 
@@ -35,6 +37,7 @@ public class CaptureRequest {
     /**
      * 현재 노드 id
      */
+    @NotNull
     private String id;
 
     /**
@@ -117,6 +120,7 @@ public class CaptureRequest {
 
         @JsonProperty("content_type")
         private String contentType;   // "text" 등
+        @NotEmpty
         private List<String> parts;   // 코드블록 등 문자열 파트 리스트
     }
 

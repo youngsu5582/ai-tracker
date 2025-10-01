@@ -52,6 +52,11 @@ public class Prompt extends AuditEntity {
 
     private String payload;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private PromptProvider provider = PromptProvider.OPEN_AI;
+
     // 제공자가 제공해주는 메시지 ID
     private String messageId;
 
@@ -84,5 +89,9 @@ public class Prompt extends AuditEntity {
     @Override
     public int hashCode() {
         return Objects.hash(uuid);
+    }
+
+    public void updatePayload(String payload) {
+        this.payload = payload;
     }
 }

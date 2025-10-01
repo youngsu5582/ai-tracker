@@ -51,8 +51,9 @@ public class MockEntityFactory {
 
     public static CaptureRequest getCaptureRequest() {
         return FIXTURE_MONKEY.giveMeBuilder(CaptureRequest.class)
+            .setNotNull("id")
             .setNotNull("message")
-            .setNotNull("content")
+            .setNotNull("message.content")
             .minSize("message.content.parts", 1)
             .set("message.author.metadata", Collections.emptyMap())
             .set("id", UUID.randomUUID().toString())

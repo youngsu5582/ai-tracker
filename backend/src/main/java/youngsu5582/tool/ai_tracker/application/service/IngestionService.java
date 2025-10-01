@@ -1,5 +1,6 @@
 package youngsu5582.tool.ai_tracker.application.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,14 +21,20 @@ public class IngestionService {
     private final PromptRepository promptRepository;
 
     @Transactional
-    public void accept(CaptureRequest captureRequest) {
-        log.info("accept capture request {}", captureRequest);
-        Prompt prompt = promptRepository.save(Prompt.builder()
-            .status(PromptStatus.RECEIVED)
-            .messageId(captureRequest.getId())
-            .payload(captureRequest.getPayload())
-            .build());
+    public UUID accept(CaptureRequest captureRequest) {
+        log.info("Accepting capture request with messageId: {}", captureRequest.getId());
+        Prompt prompt = findOrSavePrompt(captureRequest);
         applicationEventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
+        return prompt.getUuid();
     }
 
+    private Prompt findOrSavePrompt(CaptureRequest captureRequest) {
+        Prompt prompt = promptRepository.findByMessageId(captureRequest.getId())
+            .orElseGet(() -> promptRepository.save(Prompt.builder()
+                .status(PromptStatus.RECEIVED)
+                .messageId(captureRequest.getId())
+                .build()));
+        prompt.updatePayload(captureRequest.getPayload());
+        return prompt;
+    }
 }
