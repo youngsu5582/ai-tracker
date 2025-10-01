@@ -1,10 +1,10 @@
 ---
 id: task-007
 title: 'Phase 1.4: 프롬프트 수집 API 및 IngestionService 구현 (TDD)'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2025-09-24 09:41'
-updated_date: '2025-09-30 15:21'
+updated_date: '2025-10-01 15:37'
 labels:
   - phase-1
   - backend

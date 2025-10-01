@@ -1,10 +1,10 @@
 ---
 id: task-006
 title: 'Phase 1.3: Tag 및 Category 도메인 모델 구현 (TDD)'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2025-09-24 09:41'
-updated_date: '2025-09-25 15:54'
+updated_date: '2025-10-01 15:37'
 labels:
   - phase-1
   - backend
