@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
     Optional<Tag> findByUuid(UUID uuid);
+
+    default Tags findAllToFirstClass() {
+        return new Tags(findAll());
+    }
 }
