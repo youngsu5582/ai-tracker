@@ -10,8 +10,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -20,10 +22,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import youngsu5582.tool.ai_tracker.common.entity.AuditEntity;
+import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 
 @Entity
@@ -50,9 +56,14 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private PromptStatus status = PromptStatus.RECEIVED;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 2048)
     private String payload;
 
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 2048)
+    private String error;
+
     @Column(nullable = false)
     @Builder.Default
     private PromptProvider provider = PromptProvider.OPEN_AI;
@@ -64,6 +75,26 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private Set<PromptTag> promptTags = new HashSet<>();
 
+    @Setter
+    @OneToOne
+    private Category category;
+
+    public void failAnalyze(String error) {
+        this.status = PromptStatus.FAILED;
+        this.error = error;
+    }
+
+    public void completeAnalyze(Category category, List<Tag> tagList) {
+        this.status = PromptStatus.COMPLETED;
+        this.category = category;
+        addTag(tagList);
+    }
+
+    public void addTag(List<Tag> tagList) {
+        tagList.forEach(this::addTag);
+    }
+
+    // 테스트 용으로 일단 public 유지... 변경할지 고려
     public void addTag(Tag tag) {
         PromptTag promptTag = new PromptTag(this, tag);
         this.promptTags.add(promptTag);
