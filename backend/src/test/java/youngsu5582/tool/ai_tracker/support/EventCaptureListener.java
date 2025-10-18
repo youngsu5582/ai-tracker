@@ -28,10 +28,6 @@ public class EventCaptureListener extends AbstractTestExecutionListener {
             .toList();
     }
 
-    public <T> T findEventOfType(Class<T> type) {
-        return findEventsOfType(type).stream().findFirst().orElse(null);
-    }
-
     @Override
     public void afterTestMethod(TestContext testContext) throws Exception {
         eventList.clear();

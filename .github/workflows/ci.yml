@@ -27,8 +27,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew :backend:build
+      - name: Run tests and generate coverage report
+        run: ./gradlew :backend:testCoverage
 
       - name: Upload Test Report
         if: always()
@@ -51,6 +51,12 @@ jobs:
     runs-on: ubuntu-latest
     if: always() # 빌드 성공/실패 여부와 관계없이 항상 실행
     steps:
+      - name: Download Test Report Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-report
+          # 경로를 지정하지 않으면 'test-report' 폴더에 다운로드됩니다.
+
       - name: Set Build Status
         id: build-status
         run: |
@@ -63,11 +69,11 @@ jobs:
       - name: Get Test Summary
         id: test-summary
         run: |
-          if [ -f backend/build/test-results/test/TEST-*.xml ]; then
-            TOTAL=$(grep -h -E '<testsuite .*[0-9] tests="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*tests="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
-            FAILED=$(grep -h -E '<testsuite .*[0-9] failures="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*failures="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
-            ERRORS=$(grep -h -E '<testsuite .*[0-9] errors="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*errors="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
-            SKIPPED=$(grep -h -E '<testsuite .*[0-9] skipped="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*skipped="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+          if [ -f test-report/TEST-*.xml ]; then
+            TOTAL=$(grep -h -E '<testsuite .*[0-9] tests="[0-9]+"' test-report/TEST-*.xml | sed -E 's/.*tests="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            FAILED=$(grep -h -E '<testsuite .*[0-9] failures="[0-9]+"' test-report/TEST-*.xml | sed -E 's/.*failures="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            ERRORS=$(grep -h -E '<testsuite .*[0-9] errors="[0-9]+"' test-report/TEST-*.xml | sed -E 's/.*errors="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            SKIPPED=$(grep -h -E '<testsuite .*[0-9] skipped="[0-9]+"' test-report/TEST-*.xml | sed -E 's/.*skipped="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
             PASSED=$((TOTAL - FAILED - ERRORS - SKIPPED))
             echo "summary=Passed: $PASSED, Failed: $FAILED, Errors: $ERRORS, Skipped: $SKIPPED"
           else
