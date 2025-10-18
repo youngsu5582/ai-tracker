@@ -36,6 +36,38 @@
 - **`PromptDocument`:** OpenSearch에 저장될 비정규화된 검색용 문서.
 - **Events:** `PromptReceivedEvent` (수집 시점), `PromptAnalyzedEvent` (분석 완료 시점, Phase 2에서 사용).
 
+## 6. PR Creation Guidelines
+
+When creating a Pull Request, adhere to the following format to ensure clarity and provide sufficient context for reviewers. Use the `pr_body.md` file in the root directory as the base template.
+
+### PR Title
+- The title must follow the **Conventional Commits** specification.
+- Prefix the title with a type, such as `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, or `chore:`.
+- Example: `feat: 프롬프트 수집 API 및 서비스 초기 구현 (Task 007)`
+
+### PR Body
+The body should be detailed and structured according to the `pr_body.md` template.
+
+1.  **📝 Related Task**:
+    -   Clearly link the PR to the relevant task in the backlog.
+    -   Use the `Closes #task-XXX` syntax to automatically close the task upon merging.
+
+2.  **📄 Description**:
+    -   Provide a high-level summary of what the PR accomplishes and **why** the changes are being made.
+
+3.  **✨ Key Changes**:
+    -   Use a bulleted list to detail the main technical changes.
+    -   Mention new files, key architectural decisions, and significant refactoring.
+    -   Example: "테스트 환경 개선: `ControllerTestSupport`를 수정하여 모든 컨트롤러 테스트가 컨텍스트를 공유하도록 개선했습니다."
+
+4.  **🤖 To Reviewers**:
+    -   Guide the reviewers by highlighting specific areas that need close attention.
+    -   Ask for feedback on architectural decisions, correctness of logic, or adherence to conventions.
+
+5.  **✅ Checklist**:
+    -   Ensure the checklist from the template is included. The author of the PR is responsible for going through it before requesting a review.
+
+
 <!-- BACKLOG.MD GUIDELINES START -->
 # Instructions for the usage of Backlog.md CLI Tool
 
