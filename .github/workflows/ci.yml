@@ -1,0 +1,135 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew :backend:build
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: backend/build/reports/tests/test
+          retention-days: 7
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/build/reports/jacoco/test/html
+          retention-days: 7
+
+  notify-slack:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always() # 빌드 성공/실패 여부와 관계없이 항상 실행
+    steps:
+      - name: Set Build Status
+        id: build-status
+        run: |
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "status_text=✅ 빌드 성공" >> $GITHUB_OUTPUT
+          else
+            echo "status_text=❌ 빌드 실패" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get Test Summary
+        id: test-summary
+        run: |
+          if [ -f backend/build/test-results/test/TEST-*.xml ]; then
+            TOTAL=$(grep -h -E '<testsuite .*[0-9] tests="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*tests="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            FAILED=$(grep -h -E '<testsuite .*[0-9] failures="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*failures="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            ERRORS=$(grep -h -E '<testsuite .*[0-9] errors="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*errors="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            SKIPPED=$(grep -h -E '<testsuite .*[0-9] skipped="[0-9]+"' backend/build/test-results/test/TEST-*.xml | sed -E 's/.*skipped="([0-9]+)".*/\1/' | awk '{s+=$1} END {print s}')
+            PASSED=$((TOTAL - FAILED - ERRORS - SKIPPED))
+            echo "summary=Passed: $PASSED, Failed: $FAILED, Errors: $ERRORS, Skipped: $SKIPPED"
+          else
+            echo "summary=Test results not found."
+          fi >> $GITHUB_OUTPUT
+
+      - name: Send Slack Notification
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*${{ github.repository }}* CI 결과 알림"
+                  }
+                },
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ steps.build-status.outputs.status_text }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:* `${{ github.ref_name }}`"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:* `${{ github.sha }}`"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Triggered by:* ${{ github.actor }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Test Summary:* ${{ steps.test-summary.outputs.summary }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "워크플로우 바로가기"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
