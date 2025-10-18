@@ -28,8 +28,8 @@ public class EventCaptureListener extends AbstractTestExecutionListener {
             .toList();
     }
 
-    public <T> T findEventOfType(Class<T> type) {
-        return findEventsOfType(type).stream().findFirst().orElse(null);
+    public <T> List<T> findEventOfType(Class<T> type) {
+        return findEventsOfType(type).stream().toList();
     }
 
     @Override
