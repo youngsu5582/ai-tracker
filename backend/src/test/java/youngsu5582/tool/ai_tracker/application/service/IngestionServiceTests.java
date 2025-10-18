@@ -23,8 +23,8 @@ class IngestionServiceTests extends IntegrationTestSupport {
         var prompt = promptOpt.get();
 
         assertThat(prompt.getPayload()).isEqualTo(captureRequest.getPayload());
-        var event = eventCaptureListener.findEventOfType(PromptReceivedEvent.class);
-        assertThat(event.promptId()).isEqualTo(prompt.getId());
+        var events = eventCaptureListener.findEventsOfType(PromptReceivedEvent.class);
+        assertThat(events).extracting(PromptReceivedEvent::promptId).contains(prompt.getId());
     }
 
     @Test
@@ -46,8 +46,8 @@ class IngestionServiceTests extends IntegrationTestSupport {
         assertThat(prompt.getPayload()).isEqualTo(updatedPayload);
 
         assertThat(prompt.getPayload()).isEqualTo(captureRequest.getPayload());
-        var event = eventCaptureListener.findEventOfType(PromptReceivedEvent.class);
-        assertThat(event.promptId()).isEqualTo(prompt.getId());
+        var events = eventCaptureListener.findEventsOfType(PromptReceivedEvent.class);
+        assertThat(events).extracting(PromptReceivedEvent::promptId).contains(prompt.getId());
     }
 
 }

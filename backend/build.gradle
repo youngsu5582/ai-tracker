@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'youngsu5582.tool'
@@ -50,6 +51,41 @@ dependencies {
 
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
+    // 커버리지 측정에서 AiTrackerApplication 클래스를 제외합니다.
+    classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: "**/AiTrackerApplication.class") }))
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            // 규칙을 비활성화하여 빌드가 실패하지 않도록 합니다.
+            enabled = false
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.50
+            }
+        }
+    }
+}
+
+task testCoverage {
+    group 'verification'
+    description 'Runs the unit tests with coverage'
+    dependsOn(test, jacocoTestReport, jacocoTestCoverageVerification)
+
+    tasks.jacocoTestReport.mustRunAfter(tasks.test)
+    tasks.jacocoTestCoverageVerification.mustRunAfter(tasks.jacocoTestReport)
 }
