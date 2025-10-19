@@ -28,7 +28,7 @@ class TagsTests {
     @DisplayName("태그를 이름으로 찾는다")
     void findTag() {
         var findTag = tags.findTag("태그1");
-        assertThat(findTag).isPresent().get().isEqualTo(tag1);
+        assertThat(findTag).hasValue(tag1);
     }
 
 
