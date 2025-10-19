@@ -24,6 +24,7 @@ public class IngestionService {
     public UUID accept(CaptureRequest captureRequest) {
         log.info("Accepting capture request with messageId: {}", captureRequest.getId());
         Prompt prompt = findOrSavePrompt(captureRequest);
+        log.info("프롬프트를 저장했습니다. ID: {} 페이로드: {}", prompt.getId(), prompt.getPayload());
         applicationEventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
         return prompt.getUuid();
     }
