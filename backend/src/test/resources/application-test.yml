@@ -1,8 +1,3 @@
-logging:
-  structured:
-    format:
-      console: ecs
-
 spring:
   jpa:
     hibernate:
@@ -12,6 +7,9 @@ spring:
       hibernate.jdbc.time_zone: UTC
 
     show-sql: true
+  ai:
+    openai:
+      api-key: sk-proj-test
 #  threads:
 #    virtual:
 #      enabled: true
