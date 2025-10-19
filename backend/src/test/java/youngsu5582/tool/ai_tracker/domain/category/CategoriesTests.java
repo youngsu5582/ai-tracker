@@ -28,7 +28,7 @@ class CategoriesTests {
     @DisplayName("카테고리를 이름으로 찾는다")
     void findTag() {
         var findCategory = categories.findCategory("카테고리1");
-        assertThat(findCategory).isPresent().get().isEqualTo(category1);
+        assertThat(findCategory).hasValue(category1);
     }
 
 

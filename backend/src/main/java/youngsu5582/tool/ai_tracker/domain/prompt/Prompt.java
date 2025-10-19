@@ -6,9 +6,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -22,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -56,12 +57,10 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private PromptStatus status = PromptStatus.RECEIVED;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(length = 2048)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String payload;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(length = 2048)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String error;
 
     @Column(nullable = false)
@@ -75,9 +74,13 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private Set<PromptTag> promptTags = new HashSet<>();
 
-    @Setter
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
+
+    public void assignCategory(Category category) {
+        this.category = category;
+    }
 
     public void failAnalyze(String error) {
         this.status = PromptStatus.FAILED;

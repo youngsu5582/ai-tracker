@@ -24,6 +24,6 @@ public class PromptProviderConverter implements AttributeConverter<PromptProvide
         return Stream.of(PromptProvider.values())
             .filter(c -> c.getAlias().equals(dbData))
             .findFirst()
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(() -> new IllegalArgumentException("Unknown PromptProvider alias: " + dbData));
     }
 }
