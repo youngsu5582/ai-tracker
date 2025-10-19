@@ -23,7 +23,8 @@ public class DataController {
 
     @PostMapping(value = "/api/v1/prompts", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CaptureResponse> prompts(@Valid @RequestBody CaptureRequest request) {
-        log.info("요청 수신 {}", request);
+        log.info("요청 수신 ID: {}, 대화 ID: {}, Metadata: {}", request.getId(),
+            request.getConversationId(), request.getMetadata());
         UUID uuid = ingestionService.accept(request);
         return ResponseEntity.accepted().body(new CaptureResponse(uuid));
     }
