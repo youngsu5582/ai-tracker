@@ -36,6 +36,7 @@ public class IngestionService {
                 .orElseGet(() -> promptRepository.save(Prompt.builder()
                         .status(PromptStatus.RECEIVED)
                         .messageId(captureRequest.getId())
+                        .createTime(captureRequest.getCreateTime())
                         .build()));
         prompt.updatePayload(captureRequest.getPayload());
         return prompt;
