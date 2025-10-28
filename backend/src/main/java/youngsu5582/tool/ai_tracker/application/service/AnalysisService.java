@@ -17,6 +17,8 @@ import youngsu5582.tool.ai_tracker.domain.prompt.PromptRepository;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 import youngsu5582.tool.ai_tracker.domain.tag.TagRepository;
 import youngsu5582.tool.ai_tracker.domain.tag.Tags;
+import youngsu5582.tool.ai_tracker.infrastructure.persistence.document.PromptDocument;
+import youngsu5582.tool.ai_tracker.infrastructure.persistence.repository.PromptSearchRepository;
 import youngsu5582.tool.ai_tracker.provider.PromptAnalysisProvider;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata.AnalysisMetadataAttribute;
@@ -34,6 +36,7 @@ public class AnalysisService {
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
     private final PromptAnalysisProvider promptAnalysisProvider;
+    private final PromptSearchRepository promptSearchRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -64,6 +67,7 @@ public class AnalysisService {
                 .stream().map(tag -> findOrSaveTag(tags, tag))
                 .toList();
             prompt.completeAnalyze(promptCategory, promptTags);
+            promptSearchRepository.save(PromptDocument.from(prompt));
 
             log.info("프롬프트 분석을 완료했습니다. ID: {}, 카테고리: {}, 태그 목록: {}", event.promptId(),
                 promptCategory, promptTags);
