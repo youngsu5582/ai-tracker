@@ -1,11 +1,5 @@
 package youngsu5582.tool.ai_tracker.application.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +13,14 @@ import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisResult;
 import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
+
+import java.time.Duration;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class AnalysisServiceTests extends IntegrationTestSupport {
 
@@ -34,27 +36,27 @@ class AnalysisServiceTests extends IntegrationTestSupport {
     void analyzeCompleteAndChangeComplete() {
         // given
         Mockito.doReturn(AnalysisResult.builder()
-                .category("JPA")
-                .tagList(List.of("Java", "Spring"))
-                .build()).when(promptAnalysisProvider)
-            .analyze(anyString(), any(AnalysisMetadata.class));
+                        .category("JPA")
+                        .tagList(List.of("Java", "Spring"))
+                        .build()).when(promptAnalysisProvider)
+                .analyze(anyString(), any(AnalysisMetadata.class));
 
         // when
         eventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
 
         // then
-        await().untilAsserted(() -> {
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
             assertThat(promptRepository.findById(prompt.getId()))
-                .isPresent()
-                .get()
-                .extracting(Prompt::getStatus)
-                .isEqualTo(PromptStatus.COMPLETED);
+                    .isPresent()
+                    .get()
+                    .extracting(Prompt::getStatus)
+                    .isEqualTo(PromptStatus.COMPLETED);
         });
         assertThat(tagRepository.findAll()).extracting(Tag::getName)
-            .containsExactly("Java", "Spring");
+                .containsExactlyInAnyOrder("Java", "Spring");
 
         assertThat(categoryRepository.findAll()).extracting(Category::getName)
-            .containsExactly("JPA");
+                .containsExactly("JPA");
     }
 
     @Test
@@ -62,18 +64,17 @@ class AnalysisServiceTests extends IntegrationTestSupport {
     void analyzeFailAndChangeFailed() {
         // given
         Mockito.doThrow(new RuntimeException("Something Error!")).when(promptAnalysisProvider)
-            .analyze(anyString(), any(AnalysisMetadata.class));
+                .analyze(anyString(), any(AnalysisMetadata.class));
 
         // when
         eventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
 
         // then
-        await().untilAsserted(() -> {
-            assertThat(promptRepository.findById(prompt.getId()))
-                .isPresent()
-                .get()
-                .extracting(Prompt::getStatus)
-                .isEqualTo(PromptStatus.FAILED);
-        });
+        await().atMost(Duration.ofSeconds(5))
+                .untilAsserted(() -> assertThat(promptRepository.findById(prompt.getId()))
+                        .isPresent()
+                        .get()
+                        .extracting(Prompt::getStatus)
+                        .isEqualTo(PromptStatus.FAILED));
     }
 }

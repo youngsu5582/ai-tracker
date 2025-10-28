@@ -2,6 +2,10 @@ spring:
   ai:
     retry:
       max-attempts: 3
+      backoff:
+        initial-interval: 1s
+        multiplier: 2
+        max-interval: 10s
     openai:
       api-key: ${OPENAI_API_KEY}
       chat:
