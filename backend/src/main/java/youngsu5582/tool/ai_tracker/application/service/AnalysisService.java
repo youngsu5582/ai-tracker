@@ -1,7 +1,5 @@
 package youngsu5582.tool.ai_tracker.application.service;
 
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -24,6 +22,9 @@ import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata.AnalysisMetadataAttribute;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisResult;
 
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class AnalysisService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Async
     public void analysis(PromptReceivedEvent event) {
-        Prompt prompt = promptRepository.getById(event.promptId());
+        Prompt prompt = promptRepository.getByIdOrThrow(event.promptId());
         Categories categories = categoryRepository.findAllToFirstClass();
         Tags tags = tagRepository.findAllToFirstClass();
 

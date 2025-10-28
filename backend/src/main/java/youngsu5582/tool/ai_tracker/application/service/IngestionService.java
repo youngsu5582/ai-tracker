@@ -1,6 +1,5 @@
 package youngsu5582.tool.ai_tracker.application.service;
 
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -11,6 +10,8 @@ import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptRepository;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptStatus;
 import youngsu5582.tool.ai_tracker.presentation.api.dto.CaptureRequest;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -24,17 +25,18 @@ public class IngestionService {
     public UUID accept(CaptureRequest captureRequest) {
         log.info("Accepting capture request with messageId: {}", captureRequest.getId());
         Prompt prompt = findOrSavePrompt(captureRequest);
-        log.info("프롬프트를 저장했습니다. ID: {} 페이로드: {}", prompt.getId(), prompt.getPayload());
+        log.info("Prompt saved successfully. ID: {}, payload length: {}", prompt.getId(),
+                prompt.getPayload() != null ? prompt.getPayload().length() : 0);
         applicationEventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
         return prompt.getUuid();
     }
 
     private Prompt findOrSavePrompt(CaptureRequest captureRequest) {
         Prompt prompt = promptRepository.findByMessageId(captureRequest.getId())
-            .orElseGet(() -> promptRepository.save(Prompt.builder()
-                .status(PromptStatus.RECEIVED)
-                .messageId(captureRequest.getId())
-                .build()));
+                .orElseGet(() -> promptRepository.save(Prompt.builder()
+                        .status(PromptStatus.RECEIVED)
+                        .messageId(captureRequest.getId())
+                        .build()));
         prompt.updatePayload(captureRequest.getPayload());
         return prompt;
     }

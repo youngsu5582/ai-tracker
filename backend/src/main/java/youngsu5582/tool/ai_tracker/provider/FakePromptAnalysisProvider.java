@@ -1,16 +1,17 @@
 package youngsu5582.tool.ai_tracker.provider;
 
 import jakarta.annotation.PostConstruct;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisResult;
 
+import java.util.List;
+
 @Slf4j
 @Component
-@ConditionalOnMissingBean(PromptAnalysisProvider.class)
+@ConditionalOnMissingBean(OpenAiPromptAnalysisProvider.class)
 public class FakePromptAnalysisProvider implements PromptAnalysisProvider {
 
     @PostConstruct

@@ -1,10 +1,11 @@
 package youngsu5582.tool.ai_tracker.domain.prompt;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import youngsu5582.tool.ai_tracker.common.exception.EntityNotExistException;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import youngsu5582.tool.ai_tracker.common.exception.EntityNotExistException;
 
 public interface PromptRepository extends JpaRepository<Prompt, Long> {
 
@@ -14,7 +15,7 @@ public interface PromptRepository extends JpaRepository<Prompt, Long> {
 
     Optional<Prompt> findByMessageId(String messageId);
 
-    default Prompt getById(long id) {
+    default Prompt getByIdOrThrow(long id) {
         return findById(id).orElseThrow(() -> new EntityNotExistException(Prompt.class, id));
     }
 }
