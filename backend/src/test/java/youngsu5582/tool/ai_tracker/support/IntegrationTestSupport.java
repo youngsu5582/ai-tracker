@@ -20,6 +20,7 @@ import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 import youngsu5582.tool.ai_tracker.domain.category.CategoryRepository;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptRepository;
 import youngsu5582.tool.ai_tracker.domain.tag.TagRepository;
+import youngsu5582.tool.ai_tracker.infrastructure.persistence.repository.PromptSearchRepository;
 import youngsu5582.tool.ai_tracker.provider.PromptAnalysisProvider;
 
 @TestExecutionListeners(
@@ -58,6 +59,9 @@ public abstract class IntegrationTestSupport {
 
     @MockitoBean
     protected PromptAnalysisProvider promptAnalysisProvider;
+
+    @MockitoBean
+    protected PromptSearchRepository promptSearchRepository;
 
     @Autowired
     protected AnalysisService analysisService;

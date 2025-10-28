@@ -3,6 +3,7 @@ package youngsu5582.tool.ai_tracker.application.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import youngsu5582.tool.ai_tracker.MockEntityFactory;
 import youngsu5582.tool.ai_tracker.application.event.PromptReceivedEvent;
@@ -10,6 +11,7 @@ import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptStatus;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
+import youngsu5582.tool.ai_tracker.infrastructure.persistence.document.PromptDocument;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisResult;
 import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
@@ -57,6 +59,17 @@ class AnalysisServiceTests extends IntegrationTestSupport {
 
         assertThat(categoryRepository.findAll()).extracting(Category::getName)
                 .containsExactly("JPA");
+
+        ArgumentCaptor<PromptDocument> documentCaptor = ArgumentCaptor.forClass(PromptDocument.class);
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() ->
+                Mockito.verify(promptSearchRepository).save(documentCaptor.capture())
+        );
+
+        PromptDocument document = documentCaptor.getValue();
+        assertThat(document.getId()).isEqualTo(prompt.getUuid().toString());
+        assertThat(document.getStatus()).isEqualTo(PromptStatus.COMPLETED.name());
+        assertThat(document.getCategory()).isEqualTo("JPA");
+        assertThat(document.getTags()).containsExactlyInAnyOrder("Java", "Spring");
     }
 
     @Test
