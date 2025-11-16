@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import youngsu5582.tool.ai_tracker.application.service.IngestionService;
+import youngsu5582.tool.ai_tracker.application.service.PromptQueryService;
 
 @AutoConfigureMockMvc
 @WebMvcTest
@@ -21,4 +22,7 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected IngestionService ingestionService;
+
+    @MockitoBean
+    protected PromptQueryService promptQueryService;
 }
