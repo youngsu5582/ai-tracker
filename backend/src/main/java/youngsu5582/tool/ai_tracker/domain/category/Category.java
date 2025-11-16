@@ -67,7 +67,7 @@ public class Category extends AuditEntity {
     @Override
     public String toString() {
         return "Category{" +
-            "id=" + id +
+            "promptUuid=" + id +
             ", uuid=" + uuid +
             ", name='" + name + '\'' +
             '}';
