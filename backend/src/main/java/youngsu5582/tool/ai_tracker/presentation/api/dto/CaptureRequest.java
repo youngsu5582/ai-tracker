@@ -35,7 +35,7 @@ public class CaptureRequest {
     private String conversationId;
 
     /**
-     * 현재 노드 id
+     * 현재 노드 promptUuid
      */
     @NotNull
     private String id;
@@ -81,7 +81,7 @@ public class CaptureRequest {
     private Integer weight;
 
     /**
-     * 상위 메시지 id
+     * 상위 메시지 promptUuid
      */
     private String parent;
 

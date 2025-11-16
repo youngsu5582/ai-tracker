@@ -1,11 +1,11 @@
 package youngsu5582.tool.ai_tracker.infrastructure.persistence.document;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(indexName = "prompts")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PromptDocument {
 
     @Id
@@ -35,16 +36,16 @@ public class PromptDocument {
     @Field(type = FieldType.Keyword)
     private String messageId;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     private String provider;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     private String status;
 
     @Field(type = FieldType.Text)
     private String payload;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     private String error;
 
     @Field(type = FieldType.Keyword)
@@ -56,10 +57,10 @@ public class PromptDocument {
     @Field(type = FieldType.Keyword)
     private List<String> tags;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
+    @Field(type = FieldType.Date)
     private Instant createdAt;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
+    @Field(type = FieldType.Date)
     private Instant analyzedAt;
 
     public static PromptDocument from(Prompt prompt) {

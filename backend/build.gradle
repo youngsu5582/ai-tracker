@@ -51,7 +51,17 @@ dependencies {
 
     // Database
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation('org.opensearch.client:spring-data-opensearch-starter:2.0.2') {
+        exclude group: 'org.opensearch.client', module: 'opensearch-rest-high-level-client'
+    }
+    // OpenSearch Java 클라이언트 사용 시 권장 정렬 (starter가 3.2.0 이상을 기대)
+    implementation 'org.opensearch.client:opensearch-java:3.3.0'
+    implementation 'org.opensearch.client:opensearch-rest-client:3.3.0' // 필요 시
+
+    // ★ Spring Data 버전 충돌 해결 포인트
+//    implementation 'org.springframework.data:spring-data-elasticsearch:5.5.4'
+//    implementation 'org.springframework.data:spring-data-commons:3.5.4'
+
     runtimeOnly 'org.postgresql:postgresql'
 
     // Lombok
@@ -66,6 +76,9 @@ dependencies {
     // For @ServiceConnection
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
+
+    testImplementation 'org.opensearch:opensearch-testcontainers:4.0.0'
+
     testImplementation 'org.awaitility:awaitility:4.2.1'
     testImplementation 'org.wiremock.integrations:wiremock-spring-boot:3.10.0'
 
