@@ -2,13 +2,14 @@ package youngsu5582.tool.ai_tracker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.fixturemonkey.FixtureMonkey;
-import java.util.Collections;
-import java.util.UUID;
 import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
 import youngsu5582.tool.ai_tracker.domain.prompt.PromptStatus;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 import youngsu5582.tool.ai_tracker.presentation.api.dto.CaptureRequest;
+
+import java.util.Collections;
+import java.util.UUID;
 
 public class MockEntityFactory {
 
@@ -17,28 +18,28 @@ public class MockEntityFactory {
 
     public static Prompt createPrompt(PromptStatus promptStatus) {
         return Prompt.builder()
-            .status(promptStatus)
-            .payload(handleException(() -> objectMapper.writeValueAsString("value")))
-            .build();
+                .status(promptStatus)
+                .payload(handleException(() -> objectMapper.writeValueAsString("value")))
+                .build();
     }
 
     public static Tag createTag(String name) {
         return Tag.builder()
-            .name(name)
-            .build();
+                .name(name)
+                .build();
     }
 
     public static Category createCategory(String name) {
         return Category.builder()
-            .name(name)
-            .build();
+                .name(name)
+                .build();
     }
 
     public static Category createCategory(String name, Category parent) {
         return Category.builder()
-            .name(name)
-            .parentCategory(parent)
-            .build();
+                .name(name)
+                .parentCategory(parent)
+                .build();
     }
 
     private static <T> T handleException(ThrowableSupplier<T> supplier) {
@@ -51,13 +52,13 @@ public class MockEntityFactory {
 
     public static CaptureRequest getCaptureRequest() {
         return FIXTURE_MONKEY.giveMeBuilder(CaptureRequest.class)
-            .setNotNull("id")
-            .setNotNull("message")
-            .setNotNull("message.content")
-            .minSize("message.content.parts", 1)
-            .set("message.author.metadata", Collections.emptyMap())
-            .set("id", UUID.randomUUID().toString())
-            .sample();
+                .setNotNull("id")
+                .setNotNull("message")
+                .setNotNull("message.content")
+                .minSize("message.content.parts", 1)
+                .set("message.author.metadata", Collections.emptyMap())
+                .set("id", UUID.randomUUID().toString())
+                .sample();
     }
 
     @FunctionalInterface
