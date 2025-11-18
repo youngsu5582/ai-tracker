@@ -2,12 +2,14 @@ package youngsu5582.tool.ai_tracker.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import youngsu5582.tool.ai_tracker.application.event.PromptAnalysisCompletedEvent;
 import youngsu5582.tool.ai_tracker.application.event.PromptReceivedEvent;
 import youngsu5582.tool.ai_tracker.domain.category.Categories;
 import youngsu5582.tool.ai_tracker.domain.category.Category;
@@ -17,8 +19,6 @@ import youngsu5582.tool.ai_tracker.domain.prompt.PromptRepository;
 import youngsu5582.tool.ai_tracker.domain.tag.Tag;
 import youngsu5582.tool.ai_tracker.domain.tag.TagRepository;
 import youngsu5582.tool.ai_tracker.domain.tag.Tags;
-import youngsu5582.tool.ai_tracker.infrastructure.persistence.document.PromptDocument;
-import youngsu5582.tool.ai_tracker.infrastructure.persistence.repository.PromptSearchRepository;
 import youngsu5582.tool.ai_tracker.provider.PromptAnalysisProvider;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata.AnalysisMetadataAttribute;
@@ -32,11 +32,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalysisService {
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final PromptAnalysisProvider promptAnalysisProvider;
     private final PromptRepository promptRepository;
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
-    private final PromptAnalysisProvider promptAnalysisProvider;
-    private final PromptSearchRepository promptSearchRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -69,19 +69,12 @@ public class AnalysisService {
             log.info("프롬프트 분석을 완료했습니다. ID: {}, 카테고리: {}, 태그 목록: {}", event.promptId(),
                     promptCategory, promptTags);
 
-            saveDocument(prompt);
+            applicationEventPublisher.publishEvent(new PromptAnalysisCompletedEvent(prompt.getId()));
         } catch (Exception e) {
             log.warn("프롬프트 분석을 실패했습니다! ID: {} 메시지: {}", event.promptId(), e.getMessage(), e);
             prompt.failAnalyze(e.getMessage());
         }
     }
-
-    private PromptDocument saveDocument(Prompt prompt) {
-        var promptDocument = promptSearchRepository.save(PromptDocument.from(prompt));
-        log.info("프롬프트 문서를 저장 했습니다. id: {}, result: {}", promptDocument.getId(), promptDocument);
-        return promptDocument;
-    }
-
 
     private Tag findOrSaveTag(Tags tags, String tagName) {
         return tags.findTag(tagName)
@@ -94,8 +87,10 @@ public class AnalysisService {
     private Category findOrSaveCategory(Categories categories,
                                         String categoryName,
                                         String parentCategoryName) {
+        var category = categories.findCategory(categoryName);
         Category parentCategory = categories.findCategory(parentCategoryName).orElse(null);
-        return categories.findCategory(categoryName)
+        log.info("조회한 카테고리: {}, 부모 카테고리: {}", category, parentCategory);
+        return category
                 .orElseGet(
                         () -> categoryRepository.save(Category.builder()
                                 .name(categoryName)

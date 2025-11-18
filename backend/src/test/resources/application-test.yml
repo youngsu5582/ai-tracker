@@ -10,11 +10,6 @@ spring:
   ai:
     openai:
       api-key: sk-proj-test
-#  threads:
-#    virtual:
-#      enabled: true
-
-
 
 logging:
   level:
@@ -22,4 +17,3 @@ logging:
     org.opensearch.client: TRACE          # OpenSearch Java client
     org.apache.http: DEBUG                # Apache HTTP 요청/응답 헤더/라인
     org.opensearch.data: DEBUG            # spring-data-opensearch (Template/Repository 내부)
-    org.springframework.data.elasticsearch.core: DEBUG  # (fork에 따라 이 쪽이 찍히는 경우도 있음)

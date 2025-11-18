@@ -43,6 +43,7 @@ public class PromptQueryService {
     private static final String TAGS_FIELD = "tags";
     private static final String CATEGORY_FIELD = "category";
     private static final String PARENT_CATEGORY_FIELD = "parentCategory";
+    private static final int DEFAULT_RESULT_SIZE = 100;
     private static final String INDEX_NAME = resolveIndexName();
 
     private final OpenSearchClient openSearchClient;
@@ -55,6 +56,8 @@ public class PromptQueryService {
         SearchRequest request = SearchRequest.of(sr -> sr
                 .query(query)
                 .index(INDEX_NAME)
+                .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc)))
+                .size(DEFAULT_RESULT_SIZE)
         );
         try {
             SearchResponse<PromptDocument> response = openSearchClient.search(request, PromptDocument.class);
@@ -130,12 +133,22 @@ public class PromptQueryService {
             filterQueries.add(buildRangeFilter(command.from(), command.to()));
         }
 
+        // should, filter 둘다 null 이면 전문 검색
+        if (shouldQueries.isEmpty() && filterQueries.isEmpty()) {
+            return SearchRequest.of(sr -> sr
+                    .index(INDEX_NAME)
+                    .query(q -> q.matchAll(m -> m))
+                    .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc)))
+                    .size(DEFAULT_RESULT_SIZE));
+        }
+
         Query rootQuery = constructRootQuery(shouldQueries, filterQueries);
 
         return SearchRequest.of(sr -> sr
                 .index(INDEX_NAME)
                 .query(rootQuery)
-                .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc))));
+                .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc)))
+                .size(DEFAULT_RESULT_SIZE));
     }
 
     /**
