@@ -6,7 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.data.core.OpenSearchOperations;
-import org.opensearch.testcontainers.OpenSearchContainer;
+import org.opensearch.testcontainers.OpensearchContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import youngsu5582.tool.ai_tracker.application.service.AnalysisService;
 import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 import youngsu5582.tool.ai_tracker.application.service.PromptQueryService;
@@ -48,8 +49,7 @@ import java.util.Map;
 public abstract class IntegrationTestSupport {
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:16.1";
-    private static final String OPENSEARCH_IMAGE_NAME = "opensearchproject/opensearch:3.1.0";
-    private static final String PROMPT_INDEX_NAME = resolveIndexName();
+    private static final String OPENSEARCH_IMAGE_NAME = "opensearchproject/opensearch:2.0.1";
 
     @ServiceConnection
     static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>(POSTGRES_IMAGE_NAME)
@@ -58,8 +58,9 @@ public abstract class IntegrationTestSupport {
     // OpenSearch 는 아직 ServiceConnection 제공 하지 않음
     // @ServiceConnection
     // No ConnectionDetails found for source '@ServiceConnection source for IntegrationTestSupport.opensearch'
-    static final OpenSearchContainer<?> OPENSEARCH_CONTAINER = new OpenSearchContainer<>(
-            OPENSEARCH_IMAGE_NAME).withEnv("DISABLE_SECURITY_PLUGIN", "true");
+    static final OpensearchContainer<?> OPENSEARCH_CONTAINER = new OpensearchContainer<>(DockerImageName.parse(OPENSEARCH_IMAGE_NAME))
+            .waitingFor(Wait.forListeningPort())
+            .withEnv("DISABLE_SECURITY_PLUGIN", "true");
 
     static {
         OPENSEARCH_CONTAINER.start();
@@ -149,6 +150,12 @@ public abstract class IntegrationTestSupport {
         if (!tableNames.isEmpty()) {
             // db 컨텍스트를 공유하는 테스트가 있어서 테스트 하기 전 로우들 청소
             jdbcTemplate.execute("TRUNCATE TABLE " + String.join(", ", tableNames) + " CASCADE");
+        }
+
+        // 인덱스 초기화
+        var promptIndexOps = openSearchOperations.indexOps(PromptDocument.class);
+        if (promptIndexOps.exists()) {
+            promptIndexOps.delete();
         }
     }
 

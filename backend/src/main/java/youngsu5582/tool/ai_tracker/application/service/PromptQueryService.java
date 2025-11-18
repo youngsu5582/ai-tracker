@@ -43,6 +43,7 @@ public class PromptQueryService {
     private static final String TAGS_FIELD = "tags";
     private static final String CATEGORY_FIELD = "category";
     private static final String PARENT_CATEGORY_FIELD = "parentCategory";
+    private static final int DEFAULT_RESULT_SIZE = 100;
     private static final String INDEX_NAME = resolveIndexName();
 
     private final OpenSearchClient openSearchClient;
@@ -55,6 +56,7 @@ public class PromptQueryService {
         SearchRequest request = SearchRequest.of(sr -> sr
                 .query(query)
                 .index(INDEX_NAME)
+                .size(DEFAULT_RESULT_SIZE)
         );
         try {
             SearchResponse<PromptDocument> response = openSearchClient.search(request, PromptDocument.class);
@@ -135,7 +137,8 @@ public class PromptQueryService {
         return SearchRequest.of(sr -> sr
                 .index(INDEX_NAME)
                 .query(rootQuery)
-                .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc))));
+                .sort(s -> s.field(f -> f.field(CREATED_AT_FIELD).order(SortOrder.Desc)))
+                .size(DEFAULT_RESULT_SIZE));
     }
 
     /**

@@ -69,19 +69,13 @@ public class AnalysisService {
             log.info("프롬프트 분석을 완료했습니다. ID: {}, 카테고리: {}, 태그 목록: {}", event.promptId(),
                     promptCategory, promptTags);
 
-            saveDocument(prompt);
+            var promptDocument = promptSearchRepository.save(PromptDocument.from(prompt));
+            log.info("프롬프트 문서를 저장 했습니다. id: {}, result: {}", promptDocument.getId(), promptDocument);
         } catch (Exception e) {
             log.warn("프롬프트 분석을 실패했습니다! ID: {} 메시지: {}", event.promptId(), e.getMessage(), e);
             prompt.failAnalyze(e.getMessage());
         }
     }
-
-    private PromptDocument saveDocument(Prompt prompt) {
-        var promptDocument = promptSearchRepository.save(PromptDocument.from(prompt));
-        log.info("프롬프트 문서를 저장 했습니다. id: {}, result: {}", promptDocument.getId(), promptDocument);
-        return promptDocument;
-    }
-
 
     private Tag findOrSaveTag(Tags tags, String tagName) {
         return tags.findTag(tagName)
