@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,6 +22,7 @@ import org.springframework.util.StringUtils;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import youngsu5582.tool.ai_tracker.application.service.AnalysisService;
 import youngsu5582.tool.ai_tracker.application.service.IngestionService;
 import youngsu5582.tool.ai_tracker.application.service.PromptQueryService;
@@ -48,8 +47,8 @@ import java.util.Map;
 public abstract class IntegrationTestSupport {
 
     private static final String POSTGRES_IMAGE_NAME = "postgres:16.1";
-    private static final String OPENSEARCH_IMAGE_NAME = "opensearchproject/opensearch:3.1.0";
-    private static final String PROMPT_INDEX_NAME = resolveIndexName();
+    // 테스트/프로덕션 모두 OpenSearch 3.x 사용 (클라이언트 3.3.0과 정렬)
+    private static final String OPENSEARCH_IMAGE_NAME = "opensearchproject/opensearch:3.3.2";
 
     @ServiceConnection
     static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>(POSTGRES_IMAGE_NAME)
@@ -58,20 +57,12 @@ public abstract class IntegrationTestSupport {
     // OpenSearch 는 아직 ServiceConnection 제공 하지 않음
     // @ServiceConnection
     // No ConnectionDetails found for source '@ServiceConnection source for IntegrationTestSupport.opensearch'
-    static final OpenSearchContainer<?> OPENSEARCH_CONTAINER = new OpenSearchContainer<>(
-            OPENSEARCH_IMAGE_NAME).withEnv("DISABLE_SECURITY_PLUGIN", "true");
+    static final OpenSearchContainer<?> OPENSEARCH_CONTAINER = new OpenSearchContainer<>(DockerImageName.parse(OPENSEARCH_IMAGE_NAME))
+            .waitingFor(Wait.forListeningPort())
+            .withEnv("DISABLE_SECURITY_PLUGIN", "true");
 
     static {
         OPENSEARCH_CONTAINER.start();
-    }
-
-    @DynamicPropertySource
-    static void opensearchProps(DynamicPropertyRegistry r) {
-        // spring-data-opensearch-starter 는 spring.opensearch.* 프리픽스를 사용
-        r.add("spring.opensearch.uris", () -> "http://" + OPENSEARCH_CONTAINER.getHttpHostAddress());
-        // 필요시 타임아웃 등
-        // r.add("spring.opensearch.connection-timeout", () -> "3s");
-        // r.add("spring.opensearch.socket-timeout", () -> "30s");
     }
 
     @BeforeEach
@@ -149,6 +140,12 @@ public abstract class IntegrationTestSupport {
         if (!tableNames.isEmpty()) {
             // db 컨텍스트를 공유하는 테스트가 있어서 테스트 하기 전 로우들 청소
             jdbcTemplate.execute("TRUNCATE TABLE " + String.join(", ", tableNames) + " CASCADE");
+        }
+
+        // 인덱스 초기화
+        var promptIndexOps = openSearchOperations.indexOps(PromptDocument.class);
+        if (promptIndexOps.exists()) {
+            promptIndexOps.delete();
         }
     }
 

@@ -55,7 +55,7 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private Set<PromptTag> promptTags = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 

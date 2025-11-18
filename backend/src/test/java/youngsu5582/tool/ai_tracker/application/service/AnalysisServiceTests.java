@@ -10,6 +10,7 @@ import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import youngsu5582.tool.ai_tracker.MockEntityFactory;
+import youngsu5582.tool.ai_tracker.application.event.PromptAnalysisCompletedEvent;
 import youngsu5582.tool.ai_tracker.application.event.PromptReceivedEvent;
 import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
@@ -68,6 +69,9 @@ class AnalysisServiceTests extends IntegrationTestSupport {
         SearchRequest searchRequest = SearchRequest.of(search -> search.query(
                 Query.of(query -> query.match(MatchQuery.of(match -> match.field("category").query(FieldValue.of("JPA")))))
         ));
+
+        var event = eventCaptureListener.findEventsOfType(PromptAnalysisCompletedEvent.class);
+        assertThat(event).isNotNull().contains(new PromptAnalysisCompletedEvent(prompt.getId()));
         SearchResponse<PromptDocument> search = openSearchClient.search(searchRequest, PromptDocument.class);
         assertThat(search.hits().hits()).hasSize(1);
     }

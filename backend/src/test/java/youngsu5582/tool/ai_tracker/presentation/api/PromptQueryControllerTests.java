@@ -12,6 +12,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PromptQueryControllerTests extends ControllerTestSupport {
@@ -30,6 +32,28 @@ class PromptQueryControllerTests extends ControllerTestSupport {
                         .accept(MediaType.APPLICATION_JSON));
 
         // then
+        assertThat(response).hasStatus2xxSuccessful();
+    }
+
+    @Test
+    @DisplayName("검색 API는 질의 조건을 서비스로 전달하고 검색 결과를 반환한다.")
+    void search_prompts_withQueryParameters_from_to() {
+        // given
+
+        PromptSearchResult result = getPromptSummaryList();
+        when(promptQueryService.search(any())).thenReturn(result);
+
+        // when
+        var response = mvc.perform(
+                MockMvcRequestBuilders.get("/api/v1/prompts/search?searchText=latency&from=2024-01-01T00:00:00Z&to=2024-12-31T23:59:59Z")
+                        .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        verify(promptQueryService).search(argThat(cmd ->
+                "latency".equals(cmd.searchText()) &&
+                        Instant.parse("2024-01-01T00:00:00Z").equals(cmd.from()) &&
+                        Instant.parse("2024-12-31T23:59:59Z").equals(cmd.to())
+        ));
         assertThat(response).hasStatus2xxSuccessful();
     }
 
