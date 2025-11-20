@@ -10,6 +10,10 @@ spring:
   ai:
     openai:
       api-key: sk-proj-test
-#  threads:
-#    virtual:
-#      enabled: true
+
+logging:
+  level:
+    tracer: TRACE                         # cURL 로그 (요청/응답 바디 포함)
+    org.opensearch.client: TRACE          # OpenSearch Java client
+    org.apache.http: DEBUG                # Apache HTTP 요청/응답 헤더/라인
+    org.opensearch.data: DEBUG            # spring-data-opensearch (Template/Repository 내부)
