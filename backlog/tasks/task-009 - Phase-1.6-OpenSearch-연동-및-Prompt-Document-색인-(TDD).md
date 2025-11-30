@@ -1,10 +1,10 @@
 ---
 id: task-009
 title: 'Phase 1.6: OpenSearch 연동 및 Prompt Document 색인 (TDD)'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2025-09-24 09:42'
-updated_date: '2025-10-28 13:48'
+updated_date: '2025-10-29 14:37'
 labels:
   - phase-1
   - backend

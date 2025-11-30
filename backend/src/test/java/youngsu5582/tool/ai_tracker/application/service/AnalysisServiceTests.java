@@ -3,9 +3,14 @@ package youngsu5582.tool.ai_tracker.application.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.query_dsl.MatchQuery;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.SearchResponse;
 import youngsu5582.tool.ai_tracker.MockEntityFactory;
+import youngsu5582.tool.ai_tracker.application.event.PromptAnalysisCompletedEvent;
 import youngsu5582.tool.ai_tracker.application.event.PromptReceivedEvent;
 import youngsu5582.tool.ai_tracker.domain.category.Category;
 import youngsu5582.tool.ai_tracker.domain.prompt.Prompt;
@@ -16,6 +21,7 @@ import youngsu5582.tool.ai_tracker.provider.dto.AnalysisMetadata;
 import youngsu5582.tool.ai_tracker.provider.dto.AnalysisResult;
 import youngsu5582.tool.ai_tracker.support.IntegrationTestSupport;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -35,13 +41,13 @@ class AnalysisServiceTests extends IntegrationTestSupport {
 
     @Test
     @DisplayName("분석 제공자를 통해 프롬프트를 분석해 저장한다.")
-    void analyzeCompleteAndChangeComplete() {
+    void analyzeCompleteAndChangeComplete() throws IOException {
         // given
         Mockito.doReturn(AnalysisResult.builder()
                         .category("JPA")
                         .tagList(List.of("Java", "Spring"))
-                        .build()).when(promptAnalysisProvider)
-                .analyze(anyString(), any(AnalysisMetadata.class));
+                        .build())
+                .when(promptAnalysisProvider).analyze(anyString(), any(AnalysisMetadata.class));
 
         // when
         eventPublisher.publishEvent(new PromptReceivedEvent(prompt.getId()));
@@ -60,16 +66,14 @@ class AnalysisServiceTests extends IntegrationTestSupport {
         assertThat(categoryRepository.findAll()).extracting(Category::getName)
                 .containsExactly("JPA");
 
-        ArgumentCaptor<PromptDocument> documentCaptor = ArgumentCaptor.forClass(PromptDocument.class);
-        await().atMost(Duration.ofSeconds(5)).untilAsserted(() ->
-                Mockito.verify(promptSearchRepository).save(documentCaptor.capture())
-        );
+        SearchRequest searchRequest = SearchRequest.of(search -> search.query(
+                Query.of(query -> query.match(MatchQuery.of(match -> match.field("category").query(FieldValue.of("JPA")))))
+        ));
 
-        PromptDocument document = documentCaptor.getValue();
-        assertThat(document.getId()).isEqualTo(prompt.getUuid().toString());
-        assertThat(document.getStatus()).isEqualTo(PromptStatus.COMPLETED.name());
-        assertThat(document.getCategory()).isEqualTo("JPA");
-        assertThat(document.getTags()).containsExactlyInAnyOrder("Java", "Spring");
+        var event = eventCaptureListener.findEventsOfType(PromptAnalysisCompletedEvent.class);
+        assertThat(event).isNotNull().contains(new PromptAnalysisCompletedEvent(prompt.getId()));
+        SearchResponse<PromptDocument> search = openSearchClient.search(searchRequest, PromptDocument.class);
+        assertThat(search.hits().hits()).hasSize(1);
     }
 
     @Test

@@ -55,15 +55,12 @@ public class Prompt extends AuditEntity {
     @Builder.Default
     private Set<PromptTag> promptTags = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private Instant createTime;
-
-    public void assignCategory(Category category) {
-        this.category = category;
-    }
+    @Builder.Default
+    private Instant createTime = Instant.now();
 
     public void failAnalyze(String error) {
         this.status = PromptStatus.FAILED;
